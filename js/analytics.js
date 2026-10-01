@@ -30,19 +30,19 @@ var BAIDU_TONGJI_ID = '';
 })();
 
 /**
- * 打一个步骤埋点。
+ * 步骤埋点。js/pay-app.js 里包了一层 track() 调用它。
  *
- * 现在没有任何地方调用它——要没要开，你说了算。
- *
- * 如果要看「完诊率」（选了人群之后走完全流程的比例），
- * 这是唯一值得先加的指标：它当天就能测，而且它是「行动率」的上限——
+ * 现在打四个点，用来算「完诊率」——选了团队之后走完全流程的比例。
+ * 这是唯一值得先看的指标：当天可测，而且是「行动率」的上限，
  * 没走完的人不可能去验证任何事。
  *
- * 加的地方（js/pay-app.js）：
- *   - goToPre()      → trackStep('start')      进来了
- *   - goToTeams()    → trackStep('pre-done')   两问填完了
- *   - renderCross()  → trackStep('survey-done') 症状过完了
- *   - renderReport() → trackStep('report')     拿到结果了
+ *   start        点「开始诊断」
+ *   pre-done     两问填完、进入选团队
+ *   survey-done  症状过完、进入跨团队轮
+ *   report       拿到结果
+ *
+ * 在百度统计后台「事件分析」里看，事件分类是 pay、动作是上面四个。
+ * 完诊率 = report / start。
  */
 function trackStep(step) {
   if (!BAIDU_TONGJI_ID || !window._hmt) return;

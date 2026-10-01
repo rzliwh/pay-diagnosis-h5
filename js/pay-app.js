@@ -97,6 +97,16 @@ function validateRulebook() {
   return errs;
 }
 
+/* ==================== 埋点 ====================
+ * 完诊率是唯一值得先看的指标：它当天可测，而且是「行动率」的上限——
+ * 没走完的人不可能去验证任何事。
+ *
+ * 包一层是为了防 analytics.js 没加载时把主流程带崩。
+ */
+function track(step) {
+  if (typeof trackStep === 'function') trackStep(step);
+}
+
 /* ==================== 页面切换 ==================== */
 function showPage(id) {
   document.querySelectorAll('.page-section').forEach(function (el) {
@@ -158,6 +168,7 @@ function renderPreQuestion(q, key, ids) {
 }
 
 function goToPre() {
+  track('start');
   renderPreQuestion(PRE_QUESTION, 'pre',
     { title: 'pre-title', desc: 'pre-desc', options: 'pre-options', next: 'btn-pre-next' });
   showPage('page-pre');
@@ -181,6 +192,7 @@ function pickPre(el, key, optBoxId, nextBtnId) {
 
 /* ==================== 选团队 ==================== */
 function goToTeams() {
+  track('pre-done');
   var grid = document.getElementById('team-grid');
   grid.innerHTML = TEAMS.map(function (t) {
     return '<div class="team-card' + (state.teams.indexOf(t.id) >= 0 ? ' selected' : '') + '" ' +
@@ -283,6 +295,7 @@ function skipTeam() { nextTeam(); }
 
 /* ==================== 跨团队轮 ==================== */
 function renderCross() {
+  track('survey-done');
   var list = SYMPTOMS.filter(function (s) { return s.team === 'cross' || s.team === 'external'; });
   document.getElementById('cross-list').innerHTML = list.map(function (s) {
     return renderSymptomCard(s, 'cross');
@@ -557,6 +570,7 @@ function goToLoading() {
 }
 
 function renderReport() {
+  track('report');
   // 档案要存下来：L2 的输入、以及以后再回来对照时的基线
   saveArchive();
 
