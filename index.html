@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="description" content="分钱机制诊断 - 看看你的分钱方式正在吸引和赶走什么人">
+  <title>分钱机制诊断</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { DEFAULT: '#0F766E', light: '#14B8A6' },
+            warn:  { DEFAULT: '#F59E0B', dark: '#B45309' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="stylesheet" href="css/pay-main.css">
+
+  <style>
+    .page-section { display: none; }
+    #page-welcome { display: block; }
+    button { cursor: pointer; }
+  </style>
+
+  <!-- 百度统计：上线前换成你自己的 -->
+  <script>
+  var _hmt = _hmt || [];
+  (function() {
+    var hm = document.createElement("script");
+    hm.src = "https://hm.baidu.com/hm.js?c1350882bbca6aeedd57dec0c4376483";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+  </script>
+</head>
+<body>
+  <div class="app-container" id="app">
+
+    <!-- ====== 进度条 ====== -->
+    <div id="progress-container">
+      <div id="progress-bar" style="width:0%"></div>
+      <span class="progress-text" id="progress-label"></span>
+    </div>
+
+    <!-- ====== 欢迎页 ====== -->
+    <section class="page-section" id="page-welcome">
+      <div class="welcome-hero">
+        <div class="icon">🩺</div>
+        <h1 style="font-size:1.5rem;font-weight:800;color:#0F172A;margin-bottom:8px">分钱机制诊断</h1>
+        <p style="font-size:13.5px;color:#64748B;margin-bottom:4px">不是算提成方案，是做一次体检</p>
+        <p style="font-size:12px;color:#94A3B8;margin-bottom:32px">勾几个现象 · 约5分钟 · 免费</p>
+
+        <div class="welcome-flow">
+          <span class="line"></span><span>看现象</span>
+          <span class="line"></span><span>找原因</span>
+          <span class="line"></span><span>给方向</span>
+          <span class="line"></span>
+        </div>
+
+        <button onclick="goToPre()" class="btn-primary">开始诊断</button>
+
+        <p style="font-size:11.5px;color:#CBD5E1;margin-top:24px;line-height:1.7;max-width:280px">
+          完全免费 · 无需注册<br>
+          结论是待确认的假设，不是判决
+        </p>
+      </div>
+    </section>
+
+    <!-- ====== 前置问：资源分配 ====== -->
+    <section class="page-section" id="page-pre">
+      <h2 class="h-sec" id="pre-title"></h2>
+      <p class="p-sec" id="pre-desc"></p>
+      <div id="pre-options"></div>
+      <div class="note-box" style="margin-top:16px">
+        这一问不在薪酬方案里，但它是分蛋糕的第 0 步——好地盘给谁，比奖金怎么算更早决定结果。
+      </div>
+      <button onclick="goToPre2()" class="btn-primary" id="btn-pre-next" disabled>下一步</button>
+    </section>
+
+    <!-- ====== 前置问二：奖金池来源 ====== -->
+    <section class="page-section" id="page-pre2">
+      <h2 class="h-sec" id="pre2-title"></h2>
+      <p class="p-sec" id="pre2-desc"></p>
+      <div id="pre2-options"></div>
+      <div class="note-box" style="margin-top:16px">
+        这一问决定的是<b>能改什么</b>：池子如果是从预算里切的，那就动不了大小，只能动怎么分。
+      </div>
+      <button onclick="goToTeams()" class="btn-primary" id="btn-pre2-next" disabled>下一步</button>
+    </section>
+
+    <!-- ====== 选团队 ====== -->
+    <section class="page-section" id="page-teams">
+      <h2 class="h-sec">先看哪一个团队？</h2>
+      <p class="p-sec">可以多选。每选一个团队，接下来只显示那个团队的现象。</p>
+      <div class="team-grid" id="team-grid"></div>
+      <div class="note-box warn" style="margin-top:18px">
+        同一个现象在不同团队可能有不同原因，所以每个团队的结果会分开算，不会混在一起。
+      </div>
+      <button onclick="startSurvey()" class="btn-primary" id="btn-team-next" disabled>开始</button>
+    </section>
+
+    <!-- ====== 症状问卷（循环） ====== -->
+    <section class="page-section" id="page-survey">
+      <h2 class="h-sec" id="survey-title"></h2>
+      <p class="p-sec" id="survey-desc"></p>
+      <div id="symptom-list"></div>
+      <button onclick="nextTeam()" class="btn-primary" id="btn-survey-next">下一组</button>
+      <div class="btn-row">
+        <button onclick="skipTeam()" class="btn-ghost">这个团队跳过</button>
+      </div>
+    </section>
+
+    <!-- ====== 第二轮 · 跨团队 ====== -->
+    <section class="page-section" id="page-cross">
+      <h2 class="h-sec">最后一组：团队之间</h2>
+      <p class="p-sec">下面这些不属于任何一个团队，它们发生在两个团队之间。这一组最容易被忽略，也往往是问题最集中的地方。</p>
+      <div id="cross-list"></div>
+      <button onclick="goToLoading()" class="btn-primary">看结果</button>
+    </section>
+
+    <!-- ====== 加载 ====== -->
+    <section class="page-section" id="page-loading">
+      <div class="loading-content">
+        <div class="loading-spinner"></div>
+        <p id="loading-text">正在把现象对应到机制上…</p>
+      </div>
+    </section>
+
+    <!-- ====== 结果页 ====== -->
+    <section class="page-section" id="page-report">
+      <div id="report-body"></div>
+    </section>
+
+  </div>
+
+  <script src="js/pay-data.js"></script>
+  <script src="js/pay-app.js"></script>
+</body>
+</html>
