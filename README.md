@@ -96,7 +96,10 @@ node tools/selfcheck.js 某个改坏了的文件.js
 
 纯静态，丢到任意静态托管即可（GitHub Pages / Cloudflare Pages）。
 
-`js/pay-data.js` 里的百度统计 ID 目前是占位，上线前换成自己的。
+**统计**：ID 在 `js/analytics.js` 顶部，**改一处，五个页面一起生效**。
+留空就不上报（页面照常跑）。这个 ID 要单独给这个工具用，不要跟战略诊断那个混。
 
-**注意**：`l2/js/l2-app.js` 里的收款码路径是 `../images/wechat-pay-199.jpg`。
-换收款码要改这里的图片文件。
+**收款码**：在 `images/wechat-pay-199.jpg`。换的话直接替换这个文件。
+
+**上线前唯一还要确认的**：`l2/js/l2-data.js` 里的 18 篇手册。现在是空的，
+方案页会显示成「这一篇还没写」，并列出该写的六段。
