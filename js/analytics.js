@@ -15,7 +15,7 @@
  * （c1350882bbca6aeedd57dec0c4376483）混在一起——混了就分不清
  * 哪些流量是这个工具的。
  */
-var BAIDU_TONGJI_ID = 'ccd02f7e7a4f952d70afd3251a5d2563';
+var BAIDU_TONGJI_ID = '3c486c9237fc260c75b575342a69cd70';
 
 (function () {
   if (!BAIDU_TONGJI_ID) return;   // 没填 ID 就静默跳过
