@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="robots" content="noindex">
+  <title>页面不存在 · 分钱机制诊断</title>
+
+  <!-- 样式全部内联：404 页会被任意路径唤起，相对路径的 css 链接会失效 -->
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      background: #F8FAFC;
+      color: #1E293B;
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 20px;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 420px;
+      background: #fff;
+      border-radius: 16px;
+      padding: 40px 28px 32px;
+      text-align: center;
+      box-shadow: 0 0 40px rgba(0, 0, 0, 0.06);
+    }
+
+    .code {
+      font-size: 52px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      color: #0F766E;
+      line-height: 1;
+      margin-bottom: 18px;
+    }
+
+    h1 { font-size: 19px; font-weight: 800; color: #0F172A; margin-bottom: 10px; }
+
+    p { font-size: 13.5px; color: #64748B; margin-bottom: 26px; }
+
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #0F766E, #0D9488);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      text-decoration: none;
+      font-family: inherit;
+      box-shadow: 0 4px 14px rgba(15, 118, 110, 0.25);
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn:active { opacity: .9; }
+
+    .foot { font-size: 11.5px; color: #CBD5E1; margin-top: 20px; line-height: 1.7; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="code">404</div>
+    <h1>这个页面不存在</h1>
+    <p>大概率是网址打错了。<br>回首页重新开始就行。</p>
+    <a class="btn" id="home-link" href="/">回到首页</a>
+    <div class="foot">分钱机制诊断</div>
+  </div>
+
+  <script>
+    /* 这个页面同时挂在两个地方，站点根不一样：
+     *   Cloudflare Pages → /
+     *   GitHub Pages     → /pay-diagnosis-h5/
+     * 靠当前路径推断，免得「回到首页」在其中一个域名上跳错。 */
+    (function () {
+      var p = location.pathname;
+      var base = p.indexOf('/pay-diagnosis-h5/') === 0 ? '/pay-diagnosis-h5/' : '/';
+      document.getElementById('home-link').setAttribute('href', base);
+    })();
+  </script>
+</body>
+</html>
