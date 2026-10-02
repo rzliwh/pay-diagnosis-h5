@@ -158,6 +158,26 @@ Object.keys(CAUSE_FAMILY).forEach(c => {
   if (!codes.has(c)) errors.push(`CAUSE_FAMILY 里有不存在的病因 ${c}`);
 });
 
+/* ---------- 7d. 注释里写的条数不能跟实际对不上 ----------
+ * 自检的意义就是消除这种不一致——注释里的也算。
+ * 这类错不会报错、也不会让页面白屏，只是让人数错东西。
+ */
+const rawSrc = fs.readFileSync(dataPath, 'utf8');
+[
+  { re: /病因表[（(](\d+)\s*条/g, actual: () => CAUSES.length,       label: '病因表' },
+  { re: /症状表[（(](\d+)\s*条/g, actual: () => SYMPTOMS.length,     label: '症状表' },
+  { re: /改法表?[（(](\d+)\s*条/g, actual: () => Object.keys(PLANS).length, label: '改法' }
+].forEach(claim => {
+  let m;
+  while ((m = claim.re.exec(rawSrc)) !== null) {
+    const claimed = parseInt(m[1], 10);
+    const real = claim.actual();
+    if (claimed !== real) {
+      errors.push(`注释里的条数不对：${claim.label}写的是 ${claimed} 条，实际 ${real} 条`);
+    }
+  }
+});
+
 /* ---------- 8. 根因/衍生分层的规模 ---------- */
 const roots = CAUSES.filter(c => c.layer === 'root').length;
 const derived = CAUSES.filter(c => c.layer === 'derived').length;
