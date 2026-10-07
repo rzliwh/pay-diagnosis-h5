@@ -34,7 +34,7 @@ function diagnosisSummary() {
 
 function confNote() {
   var conf = params().get('conf');
-  if (conf === 'mid') return '你这次的诊断里，前两条的差别不大——所以下面会给两个方向对照着看。';
+  if (conf === 'mid') return '你这次的诊断里，前两条的差别不大——所以下面这份方案，先按可能性最高的那条来。';
   if (conf === 'low') return '你这次的诊断证据偏弱。建议先别动机制，回去把那条确认动作做了。';
   return '';
 }

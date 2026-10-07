@@ -774,7 +774,7 @@ function renderPrinciples(chains) {
              '不是通用大道理——只挑跟你这次勾的现象相关的。</p>';
   html += '<div class="principle-card"><ul>';
   list.forEach(function (p) {
-    html += '<li><span class="p-id">' + p.id + '</span>' + p.text + '</li>';
+    html += '<li>' + p.text + '</li>';
   });
   html += '</ul></div>';
   return html;

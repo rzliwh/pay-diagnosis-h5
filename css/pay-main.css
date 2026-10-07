@@ -342,18 +342,11 @@ body {
   font-size: 13.5px;
   color: #334155;
   line-height: 1.7;
-  padding-left: 34px;
-  position: relative;
+  border-left: 2px solid #E2E8F0;
+  padding-left: 12px;
   margin-bottom: 12px;
 }
 .principle-card li:last-child { margin-bottom: 0; }
-.principle-card .p-id {
-  position: absolute; left: 0; top: 1px;
-  font-size: 10px; font-weight: 700;
-  background: #0F766E; color: #fff;
-  padding: 1px 6px; border-radius: 5px;
-  letter-spacing: 0.3px;
-}
 
 .chain-block { margin-bottom: 12px; }
 .chain-block:last-child { margin-bottom: 0; }
