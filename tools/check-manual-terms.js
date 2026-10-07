@@ -1,90 +1,138 @@
 /**
- * check-manual-terms.js —— 扫 L2 手册里「用户看不懂的内部痕迹」
+ * check-manual-terms.js —— 扫「用户看不懂的内部痕迹」
  *
  * 用法：node tools/check-manual-terms.js
  *
- * 为什么要有它：手册六段是**直接渲染给用户看的**，所以正文里每个字都是用户视角。
- * 用户没见过 R15，没见过 13 号文档，也没见过完整案例库。
- * 任何依赖外部引用的句子，用户都读不懂。
+ * 规矩来自一个决定：**术语全改，不分给谁看。**
  *
- * 两条纪律：
- *   1. 每篇手册必须能独立成立——不依赖外部材料、不依赖别篇手册
- *   2. 编号不是内容——要展开成内容，或者删掉；删了不能丢信息
+ * 为什么不按「哪些地方是用户可见的」来分——那张清单是结构性的，
+ * 加了新页面它不会自己更新，漏一处术语就漏一處。而「一个概念只有一个说法」
+ * 不需要维护：不是靠记得住，是靠根本不存在第二套。
  *
- * 下面判「用户能不能看懂」，不判「这句话对不对」。
+ * 两类检查：
+ *   一、禁用术语——扫两个规则文件里的**所有文案**（注释不算，它到不了用户）
+ *   二、独立成立——扫手册六段（内部编号 / 材料引用 / 跨篇引用）
  */
 
 const fs = require('fs');
 const path = require('path');
 
-const l2Path = path.join(__dirname, '..', 'l2', 'js', 'l2-data.js');
-eval(fs.readFileSync(l2Path, 'utf8') + ';global.__M = MANUALS;');
-const MANUALS = global.__M;
+const payPath = path.join(__dirname, '..', 'js', 'pay-data.js');
+const l2Path  = path.join(__dirname, '..', 'l2', 'js', 'l2-data.js');
 
-/* 每篇手册自己的标题，用来判断「那一篇」是不是指向自己 */
-const SELF_TITLES = {
-  'pre-resource': ['资源和地盘'],
-  'pre-split': ['不同业务分开'],
-  'k1-unit': ['按谁算'],
-  'k1-metric': ['算什么数'],
-  'k1-diff': ['政策差异'],
-  'k1-cycle': ['什么时候兑现'],
-  'k2-base': ['按什么基数算'],
-  'k2-reach': ['目标定到够得着'],
-  'k2-raise': ['常规调薪'],
-  'k3-floor': ['保底'],
-  'k3-cap': ['封顶'],
-  'k3-pool': ['池子'],
-  'k4-basis': ['分配依据'],
-  'k4-rules': ['事前定规则'],
-  'k4-spread': ['差距'],
-  'k5-anchor': ['重置锚点'],
-  'k5-form': ['换激励形式']
+eval(
+  fs.readFileSync(payPath, 'utf8') + '\n' +
+  fs.readFileSync(l2Path, 'utf8') + `
+;global.__D__ = {
+  MANUALS, SECTION_OUTLINE, PLANS, PLAN_OF, CAUSES, KNOBS, BOSS_LINES,
+  PRINCIPLES, TRADEOFFS, BOUNDARY, VERIFY_FAMILIES, VERIFY_NOTE_OVERRIDE,
+  TEAMS, SYMPTOMS, PRE_QUESTION, PRE_QUESTION_2, L2_QUESTIONS,
+  ORDER_RULES, L2_BOUNDARY
 };
+`);
+const D = global.__D__;
 
+/* ==================== 一、禁用术语 ====================
+ * 这些词要么是经济学术语、要么是我们自己造的、要么是机械词。
+ * 判据：**直接念给老板听，他会不会先问「这是什么意思」。**
+ *
+ * 不在表里的（口径 / 保底 / 封顶 / 提成 / 回款 / 毛利 / 递延 / 存量 / 增量
+ * / 套利 / 倒挂）：是行业词，读者是 HR 和老板，换掉反而显外行。
+ * 「保养」也在表外——机制那个比喻已经删了，剩下的「设备该保养」是字面意思。
+ */
+const BANNED = [
+  ['棘轮',     '目标只上不下'],
+  ['锚点',     '按固定基准定 / 重新说清楚'],
+  ['归因单位', '功劳算到谁头上'],
+  ['分配形状', '差距大小'],
+  ['可归因',   '算得到人头'],
+  ['激励窗口', '钱到手太晚（劲早凉了）'],
+  ['过载',     '差距太大'],
+  ['区分度',   '差距'],
+  ['透支型',   '提前花底子'],
+  ['外部锚',   '外部的验收依据'],
+  ['多期锚定', '按固定基准定']
+];
+
+/* ==================== 二、独立成立 ==================== */
 const RULES = [
-  { re: /\bR\d+\b/g,          what: '病因编号',     fix: '展开成病因名字，或删掉（名字往往上一句已经写了）' },
-  { re: /\bD\d+\b/g,          what: '衍生病因编号', fix: '同上' },
-  { re: /\bG\d+\b/g,          what: '通用判断编号', fix: '这句话本身通常就是那条判断，删掉编号即可' },
-  { re: /案例\s*\d+/g,        what: '案例引用',     fix: '把案例写成一句话的故事；写不出细节就把引用删掉——不要编' },
-  { re: /号文档/g,            what: '内部文档',     fix: '这句话通常已经完整，直接删掉引用' },
-  { re: /外部锚/g,            what: '没有解释的造词', fix: '换成「外部的验收依据」' },
-  /* 跨篇的概念引用：用户手上没有别篇手册，所以「跟『X』是同一回事」里的 X 他没见过。
-   * 这跟「见『X』那一篇」是同一类毛病，只是没写「那一篇」，所以下面的规则查不到。 */
+  { re: /案例\s*\d+/g,  what: '案例引用',   fix: '把案例写成一句话的故事；写不出细节就把引用删掉——不要编' },
+  { re: /号文档/g,      what: '内部文档',   fix: '这句话通常已经完整，直接删掉引用' },
   { re: /跟「[^」]{2,10}」是同一回事|参见「[^」]+」|详见「[^」]+」/g,
     what: '跨篇概念引用', fix: '改写成自足的描述，别引用别篇才定义的概念' }
 ];
 
-/* 跨手册引用：用户每次只拿到一篇，指向别篇就是死引用。
- * 「见『具体怎么改』」这种同篇章节引用是合法的，不算。 */
-const SAME_DOC_SECTIONS = ['不该动', '具体怎么改', '坑', '什么条件算成功', '怎么退回来'];
+const SELF_TITLES = {
+  'pre-resource': ['资源和地盘'], 'pre-split': ['不同业务分开'],
+  'k1-unit': ['按谁算'], 'k1-metric': ['算什么数'], 'k1-diff': ['政策差异'],
+  'k1-cycle': ['什么时候兑现'], 'k2-base': ['按什么基数算'],
+  'k2-reach': ['目标定到够得着'], 'k2-raise': ['常规调薪'],
+  'k3-floor': ['保底'], 'k3-cap': ['封顶'], 'k3-pool': ['池子'],
+  'k4-basis': ['分配依据'], 'k4-rules': ['事前定规则'], 'k4-spread': ['差距'],
+  'k5-anchor': ['机制用旧了', '定期查'], 'k5-form': ['换激励形式']
+};
+
+/* 把对象里所有字符串递归收出来，附带一个「路径」用来报告位置 */
+function walk(v, pathStr, out) {
+  if (typeof v === 'string') { out.push([pathStr, v]); return; }
+  if (!v || typeof v !== 'object') return;
+  if (Array.isArray(v)) { v.forEach((x, i) => walk(x, pathStr + '[' + i + ']', out)); return; }
+  Object.keys(v).forEach(k => walk(v[k], pathStr + '.' + k, out));
+}
 
 let problems = 0;
 const rows = [];
 
-Object.keys(MANUALS).forEach(key => {
-  const secs = MANUALS[key].sections || {};
+/* ---- 一、禁用术语：扫两个文件里所有文案 ---- */
+const strings = [];
+walk(D.CAUSES, 'CAUSES', strings);
+walk(D.KNOBS, 'KNOBS', strings);
+walk(D.BOSS_LINES, 'BOSS_LINES', strings);
+walk(D.PRINCIPLES, 'PRINCIPLES', strings);
+walk(D.TRADEOFFS, 'TRADEOFFS', strings);
+walk(D.PLANS, 'PLANS', strings);
+walk(D.VERIFY_FAMILIES, 'VERIFY_FAMILIES', strings);
+walk(D.VERIFY_NOTE_OVERRIDE, 'VERIFY_NOTE_OVERRIDE', strings);
+walk(D.TEAMS, 'TEAMS', strings);
+walk(D.SYMPTOMS, 'SYMPTOMS', strings);
+walk(D.PRE_QUESTION, 'PRE_QUESTION', strings);
+walk(D.PRE_QUESTION_2, 'PRE_QUESTION_2', strings);
+walk(D.MANUALS, 'MANUALS', strings);
+walk(D.L2_QUESTIONS, 'L2_QUESTIONS', strings);
+walk(D.ORDER_RULES, 'ORDER_RULES', strings);
+walk(D.L2_BOUNDARY, 'L2_BOUNDARY', strings);
+
+strings.forEach(([where, text]) => {
+  BANNED.forEach(([bad, good]) => {
+    if (text.indexOf(bad) >= 0) {
+      rows.push([where.slice(0, 30), '禁用术语', bad, '换成：' + good]);
+      problems++;
+    }
+  });
+});
+
+/* ---- 二、独立成立：只扫手册六段 ---- */
+Object.keys(D.MANUALS).forEach(key => {
+  const secs = D.MANUALS[key].sections || {};
   Object.keys(secs).forEach(sec => {
     const text = secs[sec];
+    const at = key + '.' + sec;
 
     RULES.forEach(rule => {
       let m;
       const re = new RegExp(rule.re.source, 'g');
       while ((m = re.exec(text)) !== null) {
-        rows.push([key + '.' + sec, rule.what, m[0], rule.fix]);
+        rows.push([at, rule.what, m[0], rule.fix]);
         problems++;
       }
     });
 
-    /* 跨手册引用 */
     let m2;
     const reRef = /「([^」]{2,12})」那一篇/g;
     while ((m2 = reRef.exec(text)) !== null) {
-      const target = m2[1];
       const mine = SELF_TITLES[key] || [];
-      const isSelf = mine.some(t => target.indexOf(t) >= 0);
-      if (!isSelf) {
-        rows.push([key + '.' + sec, '跨手册引用（死引用）', m2[0], '改写成自足的句子——用户手上只有这一篇']);
+      if (!mine.some(t => m2[1].indexOf(t) >= 0)) {
+        rows.push([at, '跨手册引用', m2[0], '改写成自足的句子——用户手上只有这一篇']);
         problems++;
       }
     }
@@ -93,20 +141,19 @@ Object.keys(MANUALS).forEach(key => {
 
 if (!problems) {
   console.log('');
-  console.log('手册用词检查：通过。');
-  console.log('  没有内部编号、没有外部材料引用、没有跨手册引用。');
+  console.log('用词检查：通过。');
+  console.log('  没有禁用术语、没有内部编号、没有跨篇引用。');
   console.log('');
   process.exit(0);
 }
 
-const w = [10, 22, 24, 46];
 console.log('');
-console.log('手册用词检查 · 发现 ' + problems + ' 处用户读不懂的地方');
-console.log('─'.repeat(100));
+console.log('用词检查 · 发现 ' + problems + ' 处');
+console.log('─'.repeat(96));
 rows.forEach(r => {
-  console.log('  ' + r[0].padEnd(w[0]) + r[1].padEnd(w[1]) + ('「' + r[2] + '」').padEnd(w[2]) + r[3]);
+  console.log('  ' + r[0] + '  ' + r[1] + '  「' + r[2] + '」  ' + r[3]);
 });
 console.log('');
-console.log('每一处要么展开成内容，要么删掉。删了不能丢信息。');
+console.log('禁用术语表在 BANNED 里。新增一个词就加一条——漏一个只少查一个，不会漏一片。');
 console.log('');
 process.exit(1);
