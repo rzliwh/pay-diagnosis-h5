@@ -25,6 +25,14 @@ function causesFromParams() {
   return raw.split(',').filter(Boolean).map(causeByCode).filter(Boolean);
 }
 
+/* 这个改法挂了哪几张两说卡。
+ * 按病因匹配，不按旋钮——旋钮一底下装着四种完全不同的毛病，按旋钮会误报。 */
+function tradeoffsOfPlan(planId) {
+  return TRADEOFFS.filter(function (t) {
+    return t.causes.some(function (c) { return PLAN_OF[c] === planId; });
+  });
+}
+
 /** 诊断摘要：把带过来的病因拼成一句人话 */
 function diagnosisSummary() {
   var list = causesFromParams();
@@ -241,6 +249,22 @@ function renderReport() {
     });
   }
   html += '</div>';
+
+  /* 两说卡：这件事没有唯一正确的答案，把两边的代价摆出来，不替你选。
+   * 放在手册后面——手册的「怎么改」里会写「见下面那张卡」。 */
+  var cards = tradeoffsOfPlan(planId);
+  if (cards.length) {
+    html += '<div class="l2-block"><div class="l2-block-label">这件事没有标准答案，看你取舍</div>';
+    cards.forEach(function (t) {
+      html += '<div class="l2-tradeoff">' +
+                '<div class="l2-to-title">' + esc(t.title) + '</div>' +
+                '<div class="l2-to-row"><span class="l2-to-tag">一边</span><span class="l2-to-text">' + esc(t.a) + '</span></div>' +
+                '<div class="l2-to-row"><span class="l2-to-tag">另一边</span><span class="l2-to-text">' + esc(t.b) + '</span></div>' +
+                '<div class="l2-to-row l2-to-mid"><span class="l2-to-tag">中间</span><span class="l2-to-text">' + esc(t.mid) + '</span></div>' +
+              '</div>';
+    });
+    html += '</div>';
+  }
 
   /* 边界 */
   html += '<div class="l2-boundary"><div class="l2-boundary-title">这一层不做什么</div><ul>' +

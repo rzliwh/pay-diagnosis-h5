@@ -62,6 +62,9 @@ const RULES = [
     what: '跨篇概念引用', fix: '改写成自足的描述，别引用别篇才定义的概念' }
 ];
 
+/* 同一篇里的段落名——引用它们不算跨篇 */
+const SAME_DOC_SECTIONS = ['不该动', '具体怎么改', '坑', '什么条件算成功', '怎么退回来', '这一条在说什么'];
+
 const SELF_TITLES = {
   'pre-resource': ['资源和地盘'], 'pre-split': ['不同业务分开'],
   'k1-unit': ['按谁算'], 'k1-metric': ['算什么数'], 'k1-diff': ['政策差异'],
@@ -128,10 +131,11 @@ Object.keys(D.MANUALS).forEach(key => {
     });
 
     let m2;
-    const reRef = /「([^」]{2,12})」那一篇/g;
+    const reRef = /「([^」]{2,12})」那一[篇类块条]/g;
     while ((m2 = reRef.exec(text)) !== null) {
       const mine = SELF_TITLES[key] || [];
-      if (!mine.some(t => m2[1].indexOf(t) >= 0)) {
+      const isSelf = mine.some(t => m2[1].indexOf(t) >= 0) || SAME_DOC_SECTIONS.indexOf(m2[1]) >= 0;
+      if (!isSelf) {
         rows.push([at, '跨手册引用', m2[0], '改写成自足的句子——用户手上只有这一篇']);
         problems++;
       }
