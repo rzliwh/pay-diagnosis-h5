@@ -618,13 +618,16 @@ function renderReport() {
   var conf = judgeConfidence(chains);
   if (conf === 'mid' && top.length > 1) {
     html += '<div class="note-box">前两个的<b>差别不大</b>，先别急着认定是哪一个——' +
-            '两条都看一眼，往往能更快分辨。</div>';
+            '先用下面「需要排除的」排一遍，排不掉再回来。</div>';
   }
 
-  var rankLabels = ['最可能', '其次', '也要排除'];
-  top.forEach(function (ch, i) {
-    html += renderChainCard(ch, rankLabels[i], i);
-  });
+  /* 一张主诊断（完整卡），其余降级成「需要排除的」一行。
+   * 三条并列会让用户以为有三个答案——而这是一份诊断书：
+   * 一个主诊断，附一份鉴别。 */
+  html += renderChainCard(top[0], '最可能', 0);
+  for (var ei = 1; ei < top.length; ei++) {
+    html += renderExcludeCard(top[ei]);
+  }
 
   html += renderPrinciples(top);
   html += renderScriptCard(top[0]);
@@ -735,6 +738,17 @@ function renderChainCard(ch, rankLabel, idx) {
 
   html += '</div>';
   return html;
+}
+
+/* 需要排除的：不给完整卡片，只给「这是什么」+「一句话怎么排除」。
+ * 主诊断只有一张，这一块是附件，不是第二个答案。 */
+function renderExcludeCard(ch) {
+  var c = ch.nodes[ch.nodes.length - 1];
+  return '<div class="chain-card compact">' +
+           '<span class="chain-rank excl">需要排除的</span>' +
+           '<div class="cmp-name">' + c.plain + '</div>' +
+           '<div class="cmp-how"><b>怎么排除：</b>' + c.confirm + '</div>' +
+         '</div>';
 }
 
 /* ==================== 通用判断（命中才展示） ====================

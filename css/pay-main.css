@@ -273,6 +273,17 @@ body {
 .rank-2 .chain-rank { background: #E2E8F0; color: #475569; }
 .rank-3 .chain-rank { background: #F1F5F9; color: #94A3B8; }
 
+/* 需要排除的：压成一行，不再跟主诊断争版面 */
+.chain-card.compact {
+  background: #F8FAFC;
+  padding: 14px 16px;
+  box-shadow: none;
+}
+.chain-rank.excl { background: #E2E8F0; color: #64748B; margin-bottom: 8px; }
+.cmp-name { font-size: 13.5px; font-weight: 600; color: #475569; margin-bottom: 6px; }
+.cmp-how { font-size: 12.5px; color: #64748B; line-height: 1.65; }
+.cmp-how b { color: #94A3B8; font-weight: 600; }
+
 .chain-flow { margin-bottom: 14px; }
 .chain-node {
   display: flex; gap: 10px; align-items: flex-start;
