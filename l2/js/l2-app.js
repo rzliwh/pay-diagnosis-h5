@@ -190,6 +190,8 @@ function renderReport() {
               '<span class="l2-tag">' + (plan.knob ? '旋钮' + '一二三四五'[plan.knob - 1] : '前置条件') + '</span>' +
               '<span class="l2-tag">需要 ' + esc(plan.decider || '—') + ' 拍板</span>' +
             '</div>' +
+            '<div class="l2-who-note">这一步是<b>' + esc(plan.decider || '公司层') + '</b>拍板的。' +
+              '很多 HR 卡在这里——想在公司层的问题上做团队层的动作，推不动不是能力问题，是找错了人。</div>' +
           '</div>';
 
   /* 前提条件 */
@@ -197,6 +199,17 @@ function renderReport() {
     html += '<div class="l2-block"><div class="l2-block-label">动手之前先确认</div><ul class="l2-pre">';
     plan.preconditions.forEach(function (t) { html += '<li>' + esc(t) + '</li>'; });
     html += '</ul><div class="l2-block-foot">前提不成立的时候，方案就是空头支票。</div></div>';
+  }
+
+  /* 多久能看出效果——这是「药的钟」。
+   * 跟病因卡上那个「大概什么时候能验证」（病的钟）是两回事：
+   * 病多久显形，跟药多久见效，不是一回事，别混着用。 */
+  if (plan.effectWindow) {
+    html += '<div class="l2-block">' +
+              '<div class="l2-block-label">多久能看出效果</div>' +
+              '<div class="l2-effect">' + esc(plan.effectWindow) + '</div>' +
+              '<div class="l2-block-foot">这是「改完多久能知道有没有用」。跟病因卡上那个「大概什么时候能验证」是两个钟——病多久显形，跟药多久见效，不是一回事。</div>' +
+            '</div>';
   }
 
   /* 顺序建议 */

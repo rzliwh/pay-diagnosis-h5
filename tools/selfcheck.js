@@ -86,6 +86,11 @@ planKeys.forEach(p => {
   if (k !== null && k !== undefined && knobKeys.indexOf(String(k)) < 0) {
     errors.push(`改法 ${p} 的 knob=${k} 不在 KNOBS 里`);
   }
+  // 每个改法都要说清「多久能看出效果」——这是「药的钟」，
+  // 跟病因上的「病的钟」（CAUSE_FAMILY）是两回事，两个都要有。
+  if (!PLANS[p].effectWindow) {
+    errors.push(`改法 ${p}（${PLANS[p].title}）缺 effectWindow——用户不知道该多久回头看结果`);
+  }
 });
 
 /* ---------- 4c. 前置问：每个选项都要有作用 ---------- */
