@@ -693,6 +693,18 @@ function renderChainCard(ch, rankLabel, idx) {
             '</div>';
   }
 
+  /* 两说卡：有些事没有唯一解，把两边的代价摆出来，不替你选。
+   * 按病因匹配，不按旋钮——旋钮一底下装着四种不同的毛病，按旋钮会误报。 */
+  var tcs = TRADEOFFS.filter(function (t) { return t.causes.indexOf(c.code) >= 0; });
+  tcs.forEach(function (t) {
+    html += '<div class="chain-block tradeoff">' +
+              '<div class="b-label">两说 · ' + t.title + '　没有标准答案，看你取舍</div>' +
+              '<div class="to-row"><span class="to-tag">一边</span><span class="to-text">' + t.a + '</span></div>' +
+              '<div class="to-row"><span class="to-tag">另一边</span><span class="to-text">' + t.b + '</span></div>' +
+              '<div class="to-row to-mid"><span class="to-tag">中间</span><span class="to-text">' + t.mid + '</span></div>' +
+            '</div>';
+  });
+
   /* 怎么确认 */
   html += '<div class="chain-block">' +
             '<div class="b-label">怎么确认（10分钟、一个人、不用求人）</div>' +
@@ -704,7 +716,7 @@ function renderChainCard(ch, rankLabel, idx) {
   if (fam) {
     html += '<div class="chain-block">' +
               '<div class="b-label">大概什么时候能验证</div>' +
-              '<div class="b-body"><b>' + fam.label + '</b>　' + fam.note + '</div>' +
+              '<div class="b-body"><b>' + fam.label + '</b>　' + (VERIFY_NOTE_OVERRIDE[c.code] || fam.note) + '</div>' +
             '</div>';
   }
 

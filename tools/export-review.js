@@ -17,9 +17,9 @@ const dataPath = path.join(__dirname, '..', 'js', 'pay-data.js');
 const outPath = path.join(__dirname, '..', '待填清单.md');
 
 eval(fs.readFileSync(dataPath, 'utf8') + `
-;global.__RULEBOOK__ = { SYMPTOMS, CAUSES, TEAMS, KNOBS, BOSS_LINES, SPEC_WEIGHT, PRE_QUESTION, BOUNDARY, PLANS, PLAN_OF, PRINCIPLES, VERIFY_FAMILIES, CAUSE_FAMILY };
+;global.__RULEBOOK__ = { SYMPTOMS, CAUSES, TEAMS, KNOBS, BOSS_LINES, SPEC_WEIGHT, PRE_QUESTION, BOUNDARY, PLANS, PLAN_OF, PRINCIPLES, TRADEOFFS, VERIFY_FAMILIES, CAUSE_FAMILY, VERIFY_NOTE_OVERRIDE };
 `);
-const { SYMPTOMS, CAUSES, TEAMS, KNOBS, BOSS_LINES, PLANS, PLAN_OF, PRINCIPLES, VERIFY_FAMILIES, CAUSE_FAMILY } = global.__RULEBOOK__;
+const { SYMPTOMS, CAUSES, TEAMS, KNOBS, BOSS_LINES, PLANS, PLAN_OF, PRINCIPLES, TRADEOFFS, VERIFY_FAMILIES, CAUSE_FAMILY, VERIFY_NOTE_OVERRIDE } = global.__RULEBOOK__;
 
 const SPEC_CN = { strong: '强', mid: '中', weak: '弱' };
 const L = [];
@@ -59,6 +59,7 @@ L.push('|---|---|---|');
 L.push('| 零 | 改法地图 | 只是给你看结构，不用填 |');
 L.push(`| 一 | 鉴别诊断 + 确认动作（${CAUSES.length} 条病因，每条一节） | **主战场**，每条下面留了「改成：」 |`);
 L.push(`| 二 | 话术卡（${CAUSES.length} 条，表格） | 改成你会说的话 |`);
+L.push(`| 二点五 | 两说卡（${TRADEOFFS.length} 张） | 核一遍两边的代价写对没有 |`);
 L.push(`| 三 | 症状表（按团队分表） | 划掉不像的、补你见过的 |`);
 L.push('| 三点五 | 验证时间窗 | 核一遍分档对不对 |');
 L.push('');
@@ -169,6 +170,35 @@ CAUSES.forEach(c => {
 });
 L.push('');
 
+/* ==================== 二点五、两说卡 ==================== */
+L.push('');
+L.push(`# 二点五、两说卡（${TRADEOFFS.length} 张）`);
+L.push('');
+L.push('**这一栏是「没有标准答案」的地方。** 每张卡讲一件事的两种做法、各自的代价，外加一条中间路径。');
+L.push('工具**不替你选**——只把代价摆清楚。硬给一个答案，就成了算命。');
+L.push('');
+L.push('挂载方式：**按病因，不按旋钮**。旋钮一底下装着四种完全不同的毛病（按谁算 / 算什么数 / 什么时候兑现 / 目标怎么定），');
+L.push('按旋钮匹配会误报——一个「新手保护期」的人会看到「行情钱」的卡。通用判断 G1-G6 踩过一次这个坑。');
+L.push('');
+TRADEOFFS.forEach(t => {
+  const where = (t.causes || []).map(c => {
+    const x = CAUSES.find(y => y.code === c);
+    return x ? `${c} ${x.name}` : c + '（不存在）';
+  }).join('、');
+  L.push(`## ${t.title}`);
+  L.push('');
+  L.push(`**挂在**：${where}`);
+  L.push('');
+  L.push(`- **一边**：${t.a}`);
+  L.push(`- **另一边**：${t.b}`);
+  L.push(`- **中间路径**：${t.mid}`);
+  L.push('');
+  L.push('改成：');
+  L.push('');
+  L.push('---');
+  L.push('');
+});
+
 /* ==================== 三、症状表 ==================== */
 L.push('');
 L.push('# 三、症状表（按团队）');
@@ -256,6 +286,16 @@ Object.keys(VERIFY_FAMILIES).forEach(f => {
   const fam = VERIFY_FAMILIES[f];
   const causes = CAUSES.filter(c => CAUSE_FAMILY[c.code] === f).map(c => c.code).join('、');
   L.push(`| ${f} | **${fam.label}** | ${fam.note} | ${causes} | |`);
+});
+L.push('');
+L.push('**个别病因的说明跟它那一档不一样**（同一档里说不同的话）：');
+L.push('');
+L.push('| 病因 | 它所在档的通用说明 | 它自己的说明 |');
+L.push('|---|---|---|');
+Object.keys(VERIFY_NOTE_OVERRIDE).forEach(c => {
+  const fam = VERIFY_FAMILIES[CAUSE_FAMILY[c]];
+  const x = CAUSES.find(y => y.code === c);
+  L.push(`| ${c} ${x ? x.name : '（不存在）'} | ${fam ? fam.note : '（没登记档位）'} | ${VERIFY_NOTE_OVERRIDE[c]} |`);
 });
 L.push('');
 L.push('**要你做的**：看每一档的"显示成"和"说明"对不对，不对的写在最后一栏。');

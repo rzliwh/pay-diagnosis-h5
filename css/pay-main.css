@@ -357,6 +357,22 @@ body {
   padding: 3px 10px; border-radius: 20px; margin-bottom: 6px;
 }
 
+/* 两说卡：没有标准答案的地方，把两边的代价摆出来，不替你选 */
+.chain-block.tradeoff {
+  background: #FFFBEB; border-radius: 10px; padding: 12px 14px;
+}
+.chain-block.tradeoff .b-label { color: #B45309; font-weight: 700; margin-bottom: 9px; }
+.to-row { display: flex; gap: 8px; margin-bottom: 7px; }
+.to-row:last-child { margin-bottom: 0; }
+.to-tag {
+  flex: none; font-size: 10.5px; font-weight: 700; color: #B45309;
+  background: #FEF3C7; border-radius: 4px; padding: 2px 6px;
+  height: fit-content; margin-top: 2px; white-space: nowrap;
+}
+.to-text { font-size: 13px; color: #78350F; line-height: 1.62; }
+.to-mid .to-tag { color: #0F766E; background: #F0FDFA; }
+.to-mid .to-text { color: #115E59; }
+
 /* ========== 鉴别诊断 ========== */
 .excl-item {
   border-left: 2px solid #E2E8F0;

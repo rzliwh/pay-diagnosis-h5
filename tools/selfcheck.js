@@ -21,10 +21,10 @@ const dataPath = process.argv[2]
 // 不能直接 eval(dataSrc) —— eval 里的 const 不会漏到外层作用域，
 // 所以要在同一个 eval 里把需要的名字挂出去。
 eval(fs.readFileSync(dataPath, 'utf8') + `
-;global.__RULEBOOK__ = { SYMPTOMS, CAUSES, TEAMS, KNOBS, SPEC_WEIGHT, BOSS_LINES, PLANS, PLAN_OF, PRE_EFFECTS, PRE_QUESTION, PRE_EFFECTS_2, PRE_QUESTION_2, PRINCIPLES, VERIFY_FAMILIES, CAUSE_FAMILY };
+;global.__RULEBOOK__ = { SYMPTOMS, CAUSES, TEAMS, KNOBS, SPEC_WEIGHT, BOSS_LINES, PLANS, PLAN_OF, PRE_EFFECTS, PRE_QUESTION, PRE_EFFECTS_2, PRE_QUESTION_2, PRINCIPLES, TRADEOFFS, VERIFY_FAMILIES, CAUSE_FAMILY, VERIFY_NOTE_OVERRIDE };
 `);
 
-const { SYMPTOMS, CAUSES, TEAMS, KNOBS, SPEC_WEIGHT, BOSS_LINES, PLANS, PLAN_OF, PRE_EFFECTS, PRE_QUESTION, PRE_EFFECTS_2, PRE_QUESTION_2, PRINCIPLES, VERIFY_FAMILIES, CAUSE_FAMILY } = global.__RULEBOOK__;
+const { SYMPTOMS, CAUSES, TEAMS, KNOBS, SPEC_WEIGHT, BOSS_LINES, PLANS, PLAN_OF, PRE_EFFECTS, PRE_QUESTION, PRE_EFFECTS_2, PRE_QUESTION_2, PRINCIPLES, TRADEOFFS, VERIFY_FAMILIES, CAUSE_FAMILY, VERIFY_NOTE_OVERRIDE } = global.__RULEBOOK__;
 
 let errors = [];
 let warnings = [];
@@ -157,6 +157,9 @@ famKeys.forEach(f => {
 Object.keys(CAUSE_FAMILY).forEach(c => {
   if (!codes.has(c)) errors.push(`CAUSE_FAMILY 里有不存在的病因 ${c}`);
 });
+Object.keys(VERIFY_NOTE_OVERRIDE).forEach(c => {
+  if (!codes.has(c)) errors.push(`VERIFY_NOTE_OVERRIDE 里有不存在的病因 ${c}`);
+});
 
 /* ---------- 7d. 注释里写的条数不能跟实际对不上 ----------
  * 自检的意义就是消除这种不一致——注释里的也算。
@@ -175,6 +178,29 @@ const rawSrc = fs.readFileSync(dataPath, 'utf8');
     if (claimed !== real) {
       errors.push(`注释里的条数不对：${claim.label}写的是 ${claimed} 条，实际 ${real} 条`);
     }
+  }
+});
+
+/* ---------- 7e. 两说卡：必须挂在真实存在的病因上 ----------
+ * 两说卡是「没有唯一答案、把两边代价摆出来」的东西，
+ * 所以 a / b / mid 三段缺一不可——缺了就变成了单边建议，等于替用户做了决定。
+ */
+const toIds = new Set();
+TRADEOFFS.forEach(t => {
+  if (!t.id) { errors.push('两说卡缺 id'); return; }
+  if (toIds.has(t.id)) errors.push(`两说卡 id 重复：${t.id}`);
+  toIds.add(t.id);
+  if (!t.title) errors.push(`两说卡 ${t.id} 缺标题`);
+  ['a', 'b', 'mid'].forEach(k => {
+    if (!t[k]) errors.push(`两说卡 ${t.id} 缺「${k}」——两说必须写全两边 + 中间路径`);
+  });
+  if (t.knob) errors.push(`两说卡 ${t.id} 还在用 knob 匹配——旋钮太宽会误报，只按病因匹配`);
+  if (!t.causes || !t.causes.length) {
+    errors.push(`两说卡 ${t.id} 没有挂病因，永远不会命中`);
+  } else {
+    t.causes.forEach(c => {
+      if (!codes.has(c)) errors.push(`两说卡 ${t.id} 指向不存在的病因 ${c}`);
+    });
   }
 });
 
