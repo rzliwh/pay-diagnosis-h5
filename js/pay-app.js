@@ -547,6 +547,15 @@ function archiveToParams(archive) {
   if (archive.pre) p.set('pre', archive.pre);
   if (archive.prePool) p.set('pool', archive.prePool);
   if (archive.teams.length) p.set('teams', archive.teams.join(','));
+  /* 他勾中的现象——L2 拿它当「你自己的证据」，「带走那一页」上要显示。
+   * 只传 id 和严重度，正文留在规则库里。 */
+  var syms = Object.keys(archive.answers || {})
+    .filter(function (id) { return archive.answers[id] && archive.answers[id].sev > 0; });
+  if (syms.length) {
+    p.set('sym', syms.map(function (id) {
+      return id + ':' + archive.answers[id].sev;
+    }).join(','));
+  }
   return p.toString();
 }
 

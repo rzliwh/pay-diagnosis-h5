@@ -33,6 +33,76 @@ function tradeoffsOfPlan(planId) {
   });
 }
 
+/* 他从 L1 一路带过来的现象（勾中 + 严重度）。
+ * 这是「他自己的证据」——比任何通用清单都有说服力。 */
+function symptomsFromParams() {
+  var raw = params().get('sym') || '';
+  return raw.split(',').filter(Boolean).map(function (pair) {
+    var parts = pair.split(':');
+    var s = SYMPTOMS.filter(function (x) { return x.id === parts[0]; })[0];
+    return s ? { text: s.text, sev: parseInt(parts[1], 10) || 1 } : null;
+  }).filter(Boolean);
+}
+
+/* 四个约束答案，整理成一句人话（一页纸上要用） */
+function constraintsLine(p) {
+  return L2_QUESTIONS.map(function (q) {
+    var v = p.get('a_' + q.id);
+    var opt = q.options.filter(function (o) { return o.value === v; })[0];
+    return opt ? (q.short || q.title.replace(/[，,。？?]/g, '')) + '：' + opt.label : '';
+  }).filter(Boolean).join('；');
+}
+
+/* 手册某一段的第一句（一页纸只用得上第一句） */
+function firstSentence(manual, key) {
+  var t = (manual && manual.sections && manual.sections[key]) || '';
+  if (!t) return '';
+  var line = t.split('\n').filter(function (l) { return l && l.indexOf('·') !== 0 && l.indexOf('**') !== 0; })[0] || '';
+  return line.split('。')[0] ? line.split('。')[0] + '。' : '';
+}
+
+/* 「什么算成功」那一段里的第一条判据。
+ * 要跳过两样：开头那句总纲，和「挑判据有两个门槛」下面那两条——
+ * 门槛是审查标准，不是判据本身。 */
+function firstCriterion(manual, key) {
+  var t = (manual && manual.sections && manual.sections[key]) || '';
+  if (!t) return '';
+  var bullets = t.split('\n').filter(function (l) { return l.indexOf('·') === 0; });
+  var core = bullets.filter(function (l) {
+    return l.indexOf('旧机制下得是做不出来') < 0 && l.indexOf('取在被激励的人身上') < 0;
+  });
+  var line = (core[0] || bullets[0] || '').replace(/^·\s*/, '').replace(/\*\*/g, '');
+  var cut = line.split('。')[0];
+  return cut ? cut + '。' : line;
+}
+
+/* 带走的那一页：七行，全部来自已经有的数据，一个字都不用新写。
+ * 这一页是给 HR 拿去说服别人的——L1 给的是一句话，L2 给的是一页。 */
+function onePagerRows(plan, manual, p) {
+  var out = [];
+  var cs = causesFromParams();
+  if (cs.length) out.push(['问题的方向', cs[0].plain]);
+  var syms = symptomsFromParams();
+  if (syms.length) {
+    out.push(['我勾中的现象',
+      syms.slice(0, 4).map(function (s) { return s.text; }).join('；') +
+      (syms.length > 4 ? '…（共 ' + syms.length + ' 条）' : '')]);
+  }
+  var cons = constraintsLine(p);
+  if (cons) out.push(['我现在的约束', cons]);
+
+  var adv = orderAdvice(p).filter(function (t) { return t.indexOf('一次只拧一个') !== 0; });
+  var firstDo = adv.length ? adv[0] : firstSentence(manual, 'how');
+  if (firstDo) out.push(['先做什么', firstDo]);
+
+  var ok = firstCriterion(manual, 'success');
+  if (ok) out.push(['什么算做成', ok]);
+  if (plan.effectWindow) out.push(['多久回来看', plan.effectWindow]);
+  if (plan.decider) out.push(['这一步谁拍板', plan.decider]);
+
+  return out;
+}
+
 /** 诊断摘要：把带过来的病因拼成一句人话 */
 function diagnosisSummary() {
   var list = causesFromParams();
@@ -173,6 +243,18 @@ function renderReport() {
   var note = confNote();
   if (note) html += '<div class="l2-note-box">' + note + '</div>';
 
+  /* 你勾中的现象——他自己的证据，不是通用清单 */
+  var syms = symptomsFromParams();
+  if (syms.length) {
+    html += '<div class="l2-block"><div class="l2-block-label">你勾中的现象（' + syms.length + ' 条）</div>' +
+            '<ul class="l2-sym">';
+    syms.forEach(function (s) {
+      html += '<li>' + esc(s.text) +
+              (s.sev >= 2 ? '<span class="l2-sym-sev">反复发生</span>' : '') + '</li>';
+    });
+    html += '</ul><div class="l2-block-foot">这些是你自己勾的，不是排行榜上的通用毛病。</div></div>';
+  }
+
   /* 你的约束 */
   html += '<div class="l2-answers"><div class="l2-answers-title">你的约束条件</div>';
   L2_QUESTIONS.forEach(function (q) {
@@ -266,6 +348,23 @@ function renderReport() {
     html += '</div>';
   }
 
+  /* 带走的那一页：给 HR 拿去说服别人的。
+   * L1 给的是一句话（能在会上念），L2 给的是一页（能打印、能贴 PPT）。
+   * 七行全是拼装，没有一个是新写的内容。 */
+  var rows = onePagerRows(plan, manual, p);
+  if (rows.length) {
+    html += '<div class="l2-block"><div class="l2-block-label">带走这一页</div>' +
+            '<div class="l2-onepager" id="l2-onepager">';
+    rows.forEach(function (r) {
+      html += '<div class="l2-op-row"><span class="l2-op-k">' + esc(r[0]) + '</span>' +
+              '<span class="l2-op-v">' + esc(r[1]) + '</span></div>';
+    });
+    html += '</div>' +
+            '<button class="l2-btn-primary" style="margin-top:12px" onclick="copyOnePager()">复制这一页</button>' +
+            '<div class="l2-block-foot">给老板、给合伙人、贴进你的汇报里——这一页是拿得出手的。</div>' +
+            '</div>';
+  }
+
   /* 边界 */
   html += '<div class="l2-boundary"><div class="l2-boundary-title">这一层不做什么</div><ul>' +
           L2_BOUNDARY.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') +
@@ -273,6 +372,27 @@ function renderReport() {
 
   html += '<p class="l2-foot">方案是待验证的，不是结论。上了之后对照信号看变化。</p>';
   el.innerHTML = html;
+}
+
+/* 把「带走这一页」复制成纯文本——要能直接贴进微信、邮件、PPT */
+function copyOnePager() {
+  var box = document.getElementById('l2-onepager');
+  if (!box) return;
+  var txt = Array.prototype.map.call(box.querySelectorAll('.l2-op-row'), function (r) {
+    return r.querySelector('.l2-op-k').textContent + '：' + r.querySelector('.l2-op-v').textContent;
+  }).join('\n');
+  var btn = box.parentNode.querySelector('button');
+  var done = function () {
+    if (!btn) return;
+    var old = btn.textContent;
+    btn.textContent = '已复制 ✓';
+    setTimeout(function () { btn.textContent = old; }, 1600);
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(txt).then(done).catch(done);
+  } else {
+    done();
+  }
 }
 
 /** 按「诊断置信度 + 四个偏好答案」挑出适用的顺序建议 */

@@ -22,6 +22,7 @@ const L2_QUESTIONS = [
   {
     id: 'cash',
     title: '今年的现金流，紧不紧？',
+    short: '现金流',
     desc: '这决定「要花钱的方案」能不能上',
     options: [
       { value: 'tight',  label: '很紧',     hint: '每一笔支出都要算' },
@@ -32,6 +33,7 @@ const L2_QUESTIONS = [
   {
     id: 'scope',
     title: '存量的人，能动吗？',
+    short: '存量',
     desc: '调薪、重定职级、改老人收入——这类动作的空间有多大',
     options: [
       { value: 'none',   label: '基本动不了', hint: '一动就会出事' },
@@ -42,6 +44,7 @@ const L2_QUESTIONS = [
   {
     id: 'power',
     title: '这次改动的力度，老板能接受到哪一步？',
+    short: '力度',
     desc: '这决定是「重设」还是「调一个参数」',
     options: [
       { value: 'tune',   label: '先调一个地方', hint: '不要动框架' },
@@ -52,6 +55,7 @@ const L2_QUESTIONS = [
   {
     id: 'window',
     title: '你希望多久看到变化？',
+    short: '期望节奏',
     desc: '这决定先动见效快的，还是先动根子上的',
     options: [
       { value: 'fast',   label: '一两个月',   hint: '先要看得见的' },

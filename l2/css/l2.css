@@ -183,6 +183,38 @@ body {
 .l2-pre li::before { content: '→'; position: absolute; left: 0; color: #0F766E; font-size: 12px; }
 .l2-block-foot { font-size: 11.5px; color: #94A3B8; margin-top: 8px; }
 
+/* ---------- 你勾中的现象：他自己的证据 ---------- */
+.l2-sym { list-style: none; }
+.l2-sym li {
+  font-size: 13px; color: #334155; line-height: 1.7;
+  padding-left: 16px; position: relative; margin-bottom: 7px;
+}
+.l2-sym li:last-child { margin-bottom: 0; }
+.l2-sym li::before { content: '·'; position: absolute; left: 5px; color: #0F766E; font-weight: 700; }
+.l2-sym-sev {
+  font-size: 10.5px; color: #B45309; background: #FEF3C7;
+  border-radius: 4px; padding: 1px 5px; margin-left: 6px; white-space: nowrap;
+}
+
+/* ---------- 带走这一页：给 HR 拿去说服别人的 ---------- */
+.l2-onepager {
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.l2-op-row {
+  display: flex; gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid #F1F5F9;
+  font-size: 13px; line-height: 1.65;
+}
+.l2-op-row:last-child { border-bottom: none; }
+.l2-op-k {
+  flex: none; width: 88px;
+  color: #94A3B8; font-size: 12px; font-weight: 600;
+}
+.l2-op-v { color: #334155; }
+
 /* ---------- 两说卡：没有标准答案的地方，两边代价摆出来 ---------- */
 .l2-tradeoff {
   background: #FFFBEB;
