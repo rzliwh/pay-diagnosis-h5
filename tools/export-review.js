@@ -17,9 +17,9 @@ const dataPath = path.join(__dirname, '..', 'js', 'pay-data.js');
 const outPath = path.join(__dirname, '..', '待填清单.md');
 
 eval(fs.readFileSync(dataPath, 'utf8') + `
-;global.__RULEBOOK__ = { SYMPTOMS, CAUSES, TEAMS, KNOBS, BOSS_LINES, SPEC_WEIGHT, PRE_QUESTION, BOUNDARY, PLANS, PLAN_OF, PRINCIPLES, TRADEOFFS, VERIFY_FAMILIES, CAUSE_FAMILY, VERIFY_NOTE_OVERRIDE };
+;global.__RULEBOOK__ = { SYMPTOMS, CAUSES, TEAMS, KNOBS, BOSS_LINES, SPEC_WEIGHT, PRE_QUESTION, BOUNDARY, PLANS, PLAN_OF, PRINCIPLES, TRADEOFFS, VERIFY_FAMILIES, CAUSE_FAMILY, VERIFY_NOTE_OVERRIDE, CAUSE_CONSTRAINTS };
 `);
-const { SYMPTOMS, CAUSES, TEAMS, KNOBS, BOSS_LINES, PLANS, PLAN_OF, PRINCIPLES, TRADEOFFS, VERIFY_FAMILIES, CAUSE_FAMILY, VERIFY_NOTE_OVERRIDE } = global.__RULEBOOK__;
+const { SYMPTOMS, CAUSES, TEAMS, KNOBS, BOSS_LINES, PLANS, PLAN_OF, PRINCIPLES, TRADEOFFS, VERIFY_FAMILIES, CAUSE_FAMILY, VERIFY_NOTE_OVERRIDE, CAUSE_CONSTRAINTS } = global.__RULEBOOK__;
 
 const SPEC_CN = { strong: '强', mid: '中', weak: '弱' };
 const L = [];
@@ -308,6 +308,51 @@ Object.keys(VERIFY_NOTE_OVERRIDE).forEach(c => {
 L.push('');
 L.push('**要你做的**：看每一档的"显示成"和"说明"对不对，不对的写在最后一栏。');
 L.push('尤其是有没有**分错档**的病因——比如某个病你实际见过的比"约两年"更快或更慢。');
+L.push('');
+
+/* ==================== 三点六、约束属性 ==================== */
+L.push('---');
+L.push('');
+L.push('# 三点六、约束属性（草稿，请你核）');
+L.push('');
+L.push('**这一栏是干什么的**：L2 问了他四个约束——现金流紧不紧、存量能不能动、力度接受到哪、想多久看到变化。');
+L.push('这四个答案**现在只拿来排顺序**。所以工具会给人一个他根本做不了的方案：');
+L.push('');
+L.push('> **现金流紧的人，会被推荐「补保底、提固薪」——那是这套工具里最花钱的一步。**');
+L.push('');
+L.push('**为什么挂在病因上、不挂在改法上**：18 个改法里有 5 个装着方向相反的病。最尖锐的是保底那一组——');
+L.push('「保底不足」要补（**花钱**），「保底过高」要收（**省钱**）。挂在改法上写一个「要花钱」，');
+L.push('对后者就是一条**反向的错误警告**：他本来该收钱，你却告诉他做不了。');
+L.push('');
+L.push('| 病因 | 要花钱 | 动存量的人 | 要重设 | 你的修正 |');
+L.push('|---|---|---|---|---|');
+CAUSES.forEach(c => {
+  const cc = CAUSE_CONSTRAINTS[c.code] || {};
+  const m = v => (v ? '**是**' : '否');
+  L.push(`| ${c.code} ${c.name} | ${m(cc.costsMoney)} | ${m(cc.touchesExisting)} | ${m(cc.needsReset)} | |`);
+});
+L.push('');
+L.push('**「要重设」= 不是调一个参数就能解决的**（他如果答的是「先调一个地方」，这一条就冲突了）。');
+L.push('');
+L.push('## 我拿不准的几处（其余 74 个我看一眼就定了）');
+L.push('');
+const UNSURE = [
+  ['R1', '把好客户从一个人手里挪走，算不算「动存量的人」？我判「是」——它一样改变他的收入。但如果你觉得「动存量」专指调薪和职级，那该是「否」。'],
+  ['R6', '把事后分配改成事前规则，会不会改变谁拿多少？我判「否」——改的是规则本身。如果你们那儿谈出来的结果变化很大，该是「是」。'],
+  ['R7', '拉长兑现周期，会让现有的人短期收入下降吗？我判「是」。'],
+  ['R8', '提前发钱只是改发放时间，人不动——但钱要先垫出去。所以「要花钱=是、动存量=否」。这一组对不对？'],
+  ['R10', '从排名换成算得清的算法，会改变谁拿多少吗？我判「否」——改的是算法，结构不动。'],
+  ['R17', '池子挂上利润，差的年份收入会降——这算「动存量的人」吗？我判「是」。'],
+  ['R20', '加封顶是省钱（要花钱=否），但头部收入被压（动存量=是）。这两个方向对不对？'],
+  ['R22', '取消差异，有人收入会降——「动存量=是」。这一组对 R22 那种「外部合作方套利」的情况也适用吗？'],
+  ['R23', '剥行情 = 收入降，但公司是省钱的。所以「要花钱=否、动存量=是」——跟 R21 是同一个形状，对吗？'],
+  ['D4', '换激励形式会让收入结构变——「动存量=是」。但如果只是把「每年发一笔」改成「分档发」，总额没变呢？'],
+  ['D7', '给中后台提，通常要加钱（要花钱=是）——但如果只是把前台的降下来、总量不变呢？']
+];
+UNSURE.forEach(([code, q]) => {
+  const c = CAUSES.filter(x => x.code === code)[0];
+  L.push(`- **${code} ${c ? c.name : ''}** —— ${q}`);
+});
 L.push('');
 
 /* ==================== 四、已归档 ====================

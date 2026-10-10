@@ -839,6 +839,61 @@ const VERIFY_NOTE_OVERRIDE = {
   R23: '行情不转过一轮，看不出谁在挣行情的钱'
 };
 
+/* ========== 每个病因跟「他现在的约束」打不打架 ==========
+ *
+ * L2 问了他四个约束（现金流紧不紧 / 存量能不能动 / 力度接受到哪 / 想多久看到变化）。
+ * 这四个答案如果只是拿来排序，那这个工具就会给一个他根本做不了的方案——
+ * 现金流紧的人被推荐"补保底、提固薪"，那是这套工具里最花钱的一步。
+ *
+ * 三个属性（都是「要不要」，不写内容）：
+ *   costsMoney      要额外花钱吗（补保底、建调薪机制这类）
+ *   touchesExisting 要动存量的人吗（调薪、改职级、改老人收入这类）
+ *   needsReset      是重设吗——不是调一个参数就能解决的
+ *
+ * ★ 挂在病因上，不挂在改法上。
+ *   18 个改法里有 5 个装着方向相反的病，最尖锐的是 k3-floor：
+ *     R14 保底不足 → 要补，花钱
+ *     R21 保底过高 → 要收，省钱
+ *   挂在改法上写一个「要花钱」，对 R21 那个人就是一条反向的错误警告——
+ *   他本来该收钱，你却告诉他「这个改法要花钱，你现金紧做不了」。
+ *
+ * 同样的教训已经出现过两次（通用判断、两说卡都从按旋钮改成了按病因）：
+ * **匹配必须挂在最细的那一层，挂在聚合层上一定会误报。**
+ */
+const CAUSE_CONSTRAINTS = {
+  /*        要花钱  动存量  要重设 */
+  R1:  { costsMoney: false, touchesExisting: true,  needsReset: false },  // 把好客户挪走 = 动他的收入
+  R2:  { costsMoney: false, touchesExisting: false, needsReset: true  },  // 拆成几套考核逻辑
+  R3:  { costsMoney: false, touchesExisting: true,  needsReset: true  },
+  R4:  { costsMoney: false, touchesExisting: true,  needsReset: true  },
+  R5:  { costsMoney: false, touchesExisting: true,  needsReset: true  },  // 改的就是老人的收入依据
+  R6:  { costsMoney: false, touchesExisting: false, needsReset: false },  // 补规则，不动结构
+  R7:  { costsMoney: true,  touchesExisting: true,  needsReset: true  },  // 拉长周期要接住等待期的收入
+  R8:  { costsMoney: true,  touchesExisting: false, needsReset: false },  // 提前发钱得有钱可发
+  R9:  { costsMoney: false, touchesExisting: false, needsReset: true  },  // 换成里程碑
+  R10: { costsMoney: false, touchesExisting: false, needsReset: false },  // 换成算得清的算法
+  R11: { costsMoney: false, touchesExisting: true,  needsReset: true  },  // 老业务的人收入会降
+  R12: { costsMoney: true,  touchesExisting: false, needsReset: false },  // 保障期要真金白银兜
+  R13: { costsMoney: false, touchesExisting: false, needsReset: false },  // 把目标降下来是省钱
+  R14: { costsMoney: true,  touchesExisting: true,  needsReset: false },  // 补保底、提固薪
+  R15: { costsMoney: false, touchesExisting: true,  needsReset: true  },  // 加指标必然降收入
+  R16: { costsMoney: false, touchesExisting: false, needsReset: false },
+  R17: { costsMoney: false, touchesExisting: true,  needsReset: true  },  // 差的年份池子小，收入跟着降
+  R18: { costsMoney: false, touchesExisting: true,  needsReset: true  },
+  R19: { costsMoney: true,  touchesExisting: true,  needsReset: false },  // 调薪要有预算
+  R20: { costsMoney: false, touchesExisting: true,  needsReset: false },  // 加封顶是省钱，但头部收入被压
+  R21: { costsMoney: false, touchesExisting: true,  needsReset: true  },  // ★ 收保底是省钱，不是花钱
+  R22: { costsMoney: false, touchesExisting: true,  needsReset: true  },  // 取消差异 = 有人收入降
+  R23: { costsMoney: false, touchesExisting: true,  needsReset: true  },  // 剥行情 = 收入降，但是省钱
+  D1:  { costsMoney: false, touchesExisting: true,  needsReset: true  },
+  D2:  { costsMoney: false, touchesExisting: false, needsReset: false },  // 改的是明年的目标怎么定
+  D3:  { costsMoney: false, touchesExisting: true,  needsReset: true  },  // 说清「什么条件下不发」= 有人会少拿
+  D4:  { costsMoney: false, touchesExisting: true,  needsReset: true  },  // 换激励形式
+  D5:  { costsMoney: false, touchesExisting: true,  needsReset: true  },  // 拉开差距
+  D6:  { costsMoney: false, touchesExisting: true,  needsReset: true  },  // 收敛差距
+  D7:  { costsMoney: true,  touchesExisting: true,  needsReset: true  }   // 给中后台提，通常要加钱
+};
+
 /* ========== 边界说明 ========== */
 const BOUNDARY = [
   '股权、期权的具体条款设计涉及法律和财税，不在本工具范围内。工具只停在「要不要用、什么时候用、给谁」这一层。',

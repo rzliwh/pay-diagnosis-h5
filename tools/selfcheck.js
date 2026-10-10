@@ -21,10 +21,10 @@ const dataPath = process.argv[2]
 // 不能直接 eval(dataSrc) —— eval 里的 const 不会漏到外层作用域，
 // 所以要在同一个 eval 里把需要的名字挂出去。
 eval(fs.readFileSync(dataPath, 'utf8') + `
-;global.__RULEBOOK__ = { SYMPTOMS, CAUSES, TEAMS, KNOBS, SPEC_WEIGHT, BOSS_LINES, PLANS, PLAN_OF, PRE_EFFECTS, PRE_QUESTION, PRE_EFFECTS_2, PRE_QUESTION_2, PRINCIPLES, TRADEOFFS, VERIFY_FAMILIES, CAUSE_FAMILY, VERIFY_NOTE_OVERRIDE };
+;global.__RULEBOOK__ = { SYMPTOMS, CAUSES, TEAMS, KNOBS, SPEC_WEIGHT, BOSS_LINES, PLANS, PLAN_OF, PRE_EFFECTS, PRE_QUESTION, PRE_EFFECTS_2, PRE_QUESTION_2, PRINCIPLES, TRADEOFFS, VERIFY_FAMILIES, CAUSE_FAMILY, VERIFY_NOTE_OVERRIDE, CAUSE_CONSTRAINTS };
 `);
 
-const { SYMPTOMS, CAUSES, TEAMS, KNOBS, SPEC_WEIGHT, BOSS_LINES, PLANS, PLAN_OF, PRE_EFFECTS, PRE_QUESTION, PRE_EFFECTS_2, PRE_QUESTION_2, PRINCIPLES, TRADEOFFS, VERIFY_FAMILIES, CAUSE_FAMILY, VERIFY_NOTE_OVERRIDE } = global.__RULEBOOK__;
+const { SYMPTOMS, CAUSES, TEAMS, KNOBS, SPEC_WEIGHT, BOSS_LINES, PLANS, PLAN_OF, PRE_EFFECTS, PRE_QUESTION, PRE_EFFECTS_2, PRE_QUESTION_2, PRINCIPLES, TRADEOFFS, VERIFY_FAMILIES, CAUSE_FAMILY, VERIFY_NOTE_OVERRIDE, CAUSE_CONSTRAINTS } = global.__RULEBOOK__;
 
 let errors = [];
 let warnings = [];
@@ -164,6 +164,24 @@ Object.keys(CAUSE_FAMILY).forEach(c => {
 });
 Object.keys(VERIFY_NOTE_OVERRIDE).forEach(c => {
   if (!codes.has(c)) errors.push(`VERIFY_NOTE_OVERRIDE 里有不存在的病因 ${c}`);
+});
+
+/* ---------- 7f. 约束属性：每条病因都要有 ----------
+ * 漏一条 = 用户拿到一个跟他处境打架、却没人提醒他的方案。
+ */
+const CONSTR_KEYS = ['costsMoney', 'touchesExisting', 'needsReset'];
+CAUSES.forEach(c => {
+  const cc = CAUSE_CONSTRAINTS[c.code];
+  if (!cc) {
+    errors.push(`${c.code} 没登记约束属性（CAUSE_CONSTRAINTS）——L2 没法判断这个方案跟他现在的处境打不打架`);
+    return;
+  }
+  CONSTR_KEYS.forEach(k => {
+    if (typeof cc[k] !== 'boolean') errors.push(`CAUSE_CONSTRAINTS.${c.code}.${k} 必须是 true / false`);
+  });
+});
+Object.keys(CAUSE_CONSTRAINTS).forEach(c => {
+  if (!codes.has(c)) errors.push(`CAUSE_CONSTRAINTS 里有不存在的病因 ${c}`);
 });
 
 /* ---------- 7d. 注释里写的条数不能跟实际对不上 ----------
