@@ -236,6 +236,7 @@ function renderSurvey() {
   }).join('');
   document.getElementById('btn-survey-next').textContent =
     state.teamIdx === state.teams.length - 1 ? '最后一组' : '下一组';
+  updateOverNote();
   showPage('page-survey');
 }
 
@@ -277,6 +278,36 @@ function setSev(sid, sev, teamId) {
   fresh.innerHTML = renderSymptomCard(s, teamId);
   card.replaceWith(fresh.firstChild);
   saveState();
+  updateOverNote();
+}
+
+/* 「勾太多了」的提醒——**在勾选的时候就出现，不等报告页**。
+ * 到了报告页才说，他只能推倒重来；在这儿说，他抬抬手就能改。
+ *
+ * 判据：命中的病因超过全部的一半。
+ * 为什么是这个数：勾 10 条时第一名占 79%（那时候它在诊断）；
+ * 勾 110 条时 30 个病因全被激活、第一名只占 7%——
+ * 那时候的第一名不是"你的问题最可能是哪个"，是"规则库里哪条病因的症状写得最广"。
+ */
+function updateOverNote() {
+  var els = document.querySelectorAll('.over-note');
+  if (!els.length) return;
+
+  var scores = scoreCauses();
+  var n = Object.keys(scores).filter(function (c) { return scores[c].score > 0; }).length;
+  var half = Math.ceil(CAUSES.length / 2);
+
+  var msg = '';
+  if (n >= half) {
+    msg = '<b>你勾的现象，已经指向 ' + n + ' 个病因了——超过一半。</b><br>' +
+          '这不是说你有 ' + n + ' 个问题，是说<b>勾得越多，越分不出主次</b>：' +
+          '一条病因可能靠「沾边」就进了榜。<br>' +
+          '往回改改：<b>只留你一想起就头疼的那几条</b>，把「好像也有一点」的去掉。';
+  }
+  Array.prototype.forEach.call(els, function (el) {
+    el.innerHTML = msg;
+    el.style.display = msg ? 'block' : 'none';
+  });
 }
 
 function setDur(el, sid, dur) {
@@ -306,6 +337,7 @@ function renderCross() {
   document.getElementById('cross-list').innerHTML = list.map(function (s) {
     return renderSymptomCard(s, 'cross');
   }).join('');
+  updateOverNote();
   showPage('page-cross');
 }
 
