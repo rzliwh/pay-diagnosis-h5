@@ -324,15 +324,44 @@ L.push('**为什么挂在病因上、不挂在改法上**：18 个改法里有 5
 L.push('「保底不足」要补（**花钱**），「保底过高」要收（**省钱**）。挂在改法上写一个「要花钱」，');
 L.push('对后者就是一条**反向的错误警告**：他本来该收钱，你却告诉他做不了。');
 L.push('');
-L.push('| 病因 | 要花钱 | 动存量的人 | 要重设 | 你的修正 |');
-L.push('|---|---|---|---|---|');
-CAUSES.forEach(c => {
+L.push('**90 条不是 90 个判断——它们只有 7 种形状。你只要看这 7 行。**');
+L.push('');
+L.push('| 形状 | 要花钱 | 动存量的人 | 要重设 | 人话 | 哪些病 | 你的修正 |');
+L.push('|---|---|---|---|---|---|---|');
+const SHAPES = [
+  ['FFF', '只改规则或算法', '钱和人都不动'],
+  ['FFT', '要重设机制', '但不花钱、不动现有的人'],
+  ['FTF', '动现有人的收入', '但不用重设机制'],
+  ['FTT', '重设 + 动现有人的收入', '公司不掏额外的钱'],
+  ['TFF', '要花钱', '但不动现有的人——花在新增上'],
+  ['TTF', '要花钱 + 动现有的人', '不用重设'],
+  ['TTT', '三样全占', '最重的一类']
+];
+const shapeOf = c => {
   const cc = CAUSE_CONSTRAINTS[c.code] || {};
-  const m = v => (v ? '**是**' : '否');
-  L.push(`| ${c.code} ${c.name} | ${m(cc.costsMoney)} | ${m(cc.touchesExisting)} | ${m(cc.needsReset)} | |`);
+  return (cc.costsMoney ? 'T' : 'F') + (cc.touchesExisting ? 'T' : 'F') + (cc.needsReset ? 'T' : 'F');
+};
+const byShape = {};
+CAUSES.forEach(c => { const k = shapeOf(c); (byShape[k] = byShape[k] || []).push(c); });
+SHAPES.forEach(([k, plain, why]) => {
+  const list = byShape[k] || [];
+  if (!list.length) return;
+  const m = v => (v === 'T' ? '**是**' : '否');
+  L.push(`| ${k} | ${m(k[0])} | ${m(k[1])} | ${m(k[2])} | ${plain}，${why} | ${list.map(c => c.code).join('、')} | |`);
 });
 L.push('');
-L.push('**「要重设」= 不是调一个参数就能解决的**（他如果答的是「先调一个地方」，这一条就冲突了）。');
+L.push('**怎么核**：不要一条一条看。**看这 7 行**——');
+L.push('某一行的人话你同意，那一整组就一起过了；不同意，只要告诉我「哪一条该挪到哪一行」。');
+L.push('');
+L.push('**「要重设」= 不是调一个参数就能解决的**（他若答「先调一个地方」，这一条就冲突）。');
+L.push('');
+L.push('每一组里有谁：');
+L.push('');
+SHAPES.forEach(([k]) => {
+  const list = byShape[k] || [];
+  if (!list.length) return;
+  L.push(`- **${k}** —— ${list.map(c => c.code + ' ' + c.name).join('、')}`);
+});
 L.push('');
 L.push('## 我拿不准的几处（其余 74 个我看一眼就定了）');
 L.push('');
