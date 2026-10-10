@@ -867,11 +867,11 @@ const CAUSE_CONSTRAINTS = {
   R3:  { costsMoney: false, touchesExisting: true,  needsReset: true  },
   R4:  { costsMoney: false, touchesExisting: true,  needsReset: true  },
   R5:  { costsMoney: false, touchesExisting: true,  needsReset: true  },  // 改的就是老人的收入依据
-  R6:  { costsMoney: false, touchesExisting: false, needsReset: false },  // 补规则，不动结构
+  R6:  { costsMoney: false, touchesExisting: true,  needsReset: false },  // 规则写下来之后，谁拿多少会跟着变
   R7:  { costsMoney: true,  touchesExisting: true,  needsReset: true  },  // 拉长周期要接住等待期的收入
   R8:  { costsMoney: true,  touchesExisting: false, needsReset: false },  // 提前发钱得有钱可发
   R9:  { costsMoney: false, touchesExisting: false, needsReset: true  },  // 换成里程碑
-  R10: { costsMoney: false, touchesExisting: false, needsReset: false },  // 换成算得清的算法
+  R10: { costsMoney: false, touchesExisting: true,  needsReset: false },  // 排名没变，但具体数额会变
   R11: { costsMoney: false, touchesExisting: true,  needsReset: true  },  // 老业务的人收入会降
   R12: { costsMoney: true,  touchesExisting: false, needsReset: false },  // 保障期要真金白银兜
   R13: { costsMoney: false, touchesExisting: false, needsReset: false },  // 把目标降下来是省钱
@@ -891,7 +891,7 @@ const CAUSE_CONSTRAINTS = {
   D4:  { costsMoney: false, touchesExisting: true,  needsReset: true  },  // 换激励形式
   D5:  { costsMoney: false, touchesExisting: true,  needsReset: true  },  // 拉开差距
   D6:  { costsMoney: false, touchesExisting: true,  needsReset: true  },  // 收敛差距
-  D7:  { costsMoney: true,  touchesExisting: true,  needsReset: true  }   // 给中后台提，通常要加钱
+  D7:  { costsMoney: false, touchesExisting: true,  needsReset: true  }   // 总量不变也行——把前台的降下来
 };
 
 /* ========== 边界说明 ========== */
