@@ -91,6 +91,11 @@ planKeys.forEach(p => {
   if (!PLANS[p].effectWindow) {
     errors.push(`改法 ${p}（${PLANS[p].title}）缺 effectWindow——用户不知道该多久回头看结果`);
   }
+  // seeSpeed 是 effectWindow 的三档版，L2 拿它跟「你希望多久看到变化」比。
+  // 缺了或者写错，那句冲突提醒就永远不会出来。
+  if (['fast', 'cycle', 'year'].indexOf(PLANS[p].seeSpeed) < 0) {
+    errors.push(`改法 ${p} 的 seeSpeed 非法（合法值：fast / cycle / year）——L2 的「多久看到变化」提醒会失效`);
+  }
 });
 
 /* ---------- 4c. 前置问：每个选项都要有作用 ---------- */

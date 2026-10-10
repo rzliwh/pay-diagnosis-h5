@@ -53,6 +53,54 @@ function constraintsLine(p) {
   }).filter(Boolean).join('；');
 }
 
+/* 在他自己的诊断结果里，找一个跟他约束不冲突的改法。
+ * 通用的「先动那个不花钱的」是废话——他还得自己回去找；
+ * 说「你这次还命中了 X，那一步不冲突」，他直接能走。 */
+function nextStep(planId, p) {
+  var cs = causesFromParams();
+  var want = { fast: 1, season: 2, long: 3 }[p.get('a_window')] || 3;
+  var see = function (id) { return { fast: 1, cycle: 2, year: 3 }[id] || 2; };
+  for (var i = 1; i < cs.length; i++) {
+    var code = cs[i].code, pid = PLAN_OF[code];
+    if (!pid || pid === planId) continue;
+    var cc = CAUSE_CONSTRAINTS[code] || {};
+    if (p.get('a_cash') === 'tight' && cc.costsMoney) continue;
+    if (p.get('a_scope') === 'none' && cc.touchesExisting) continue;
+    if (p.get('a_power') === 'tune' && cc.needsReset) continue;
+    var alt = PLANS[pid];
+    if (want < see(alt.seeSpeed)) continue;
+    return '你这次还命中了「' + alt.title + '」，那一步不冲突，可以先从它开始';
+  }
+  return '先把它放到最后，或者先去做那件十分钟能验证的事';
+}
+
+/* 他的方案跟他自己答的约束，打不打架。
+ * 这是这个工具最该做的一件事——给一个他做不了的方案，还一声不吭。 */
+function conflictWarnings(planId, plan, p) {
+  var cs = causesFromParams();
+  if (!plan || !cs.length) return [];
+  var cc = CAUSE_CONSTRAINTS[cs[0].code] || {};
+  var out = [];
+  var then = nextStep(planId, p);
+
+  if (p.get('a_cash') === 'tight' && cc.costsMoney) {
+    out.push('**这一步要花钱。** 你说过今年现金流紧——' + then + '。');
+  }
+  if (p.get('a_scope') === 'none' && cc.touchesExisting) {
+    out.push('**这一步会动到现有人的收入。** 你说过存量基本动不了——先动增量的：新业务、新人的机制先建起来，老的先不动。');
+  }
+  if (p.get('a_power') === 'tune' && cc.needsReset) {
+    out.push('**这一步是重设，不是调一个参数。** 你说过想先调一个地方——那这一步现在做不了，' + then + '。');
+  }
+  var want = { fast: 1, season: 2, long: 3 }[p.get('a_window')] || 3;
+  var got = { fast: 1, cycle: 2, year: 3 }[plan.seeSpeed] || 2;
+  if (want < got) {
+    out.push('**你想一两个月看到变化，但这一步最快也要' +
+             (plan.seeSpeed === 'year' ? '跨年' : '一个完整结算周期') + '才显形。** ' + then + '。');
+  }
+  return out;
+}
+
 /* 手册某一段的第一句（一页纸只用得上第一句） */
 function firstSentence(manual, key) {
   var t = (manual && manual.sections && manual.sections[key]) || '';
@@ -283,6 +331,17 @@ function renderReport() {
             '<div class="l2-who-note">这一步是<b>' + esc(plan.decider || '公司层') + '</b>拍板的。' +
               '很多 HR 卡在这里——想在公司层的问题上做团队层的动作，推不动不是能力问题，是找错了人。</div>' +
           '</div>';
+
+  /* 约束冲突——放在手册之前。读完了手册才看到警告，等于白读。 */
+  var warns = conflictWarnings(planId, plan, p);
+  if (warns.length) {
+    html += '<div class="l2-conflict">' +
+              '<div class="l2-cf-title">这一步跟你现在的处境有 ' + warns.length + ' 处打架</div>';
+    warns.forEach(function (t) {
+      html += '<div class="l2-cf-row">' + t.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>') + '</div>';
+    });
+    html += '</div>';
+  }
 
   /* 前提条件 */
   if (plan.preconditions && plan.preconditions.length) {
