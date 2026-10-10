@@ -106,29 +106,17 @@ function walk(v, pathStr, out) {
   Object.keys(v).forEach(k => walk(v[k], pathStr + '.' + k, out));
 }
 
-/* ==================== 三、坑不许复述 ====================
- * 「最容易踩的坑」这个标题承诺的是**前面没说的东西**。
- * 读到的是复述，用户会觉得"这段是不是重复贴了"。
- * 而真正新的那些坑——「责任被切碎」「指标一进考核就会被优化」
- * 「第二年露馅」——恰恰是全套文档里最值钱的句子。
+/* ==================== 三、坑里不许整句照抄 ====================
+ * 「最容易踩的坑」这一栏，跟前面几段往往会有重合——**那是可以的**：
+ * 它在前面是"一个信号"，在这里是"这个信号的后果和原因"，是更深入的解读。
+ * 实测过：人工判为"整段对调"的两条，用词重合是 69% / 65%；
+ * 判为"更深入的解读"的是 73% / 62%——**两条线交在一起，没有阈值能分开。**
  *
- * 判据是机械的：把坑里每一条的**加粗标题**，跟同一篇的前五段比对，
- * 找最长公共片段。逐字复制一跑就抓到；
- * 换了说法说同一件事的（语义重复）抓不到——那些报出来之后人工过一眼。
+ * 所以这里只查最粗、也最没有争议的一档：
+ * **整句照抄**——坑里有一句话，跟前面几段的一个连续片段一字不差，且够长。
+ * 「最长公共片段」≥ 这个长度，就不是"用词像"，是"搬过来了"。
  */
-const TRAP_LCS_MIN = 10;
-const TRAP_BIGRAM_MIN = 0.75;   // 换了说法说同一件事的，用词重合也会偏高
-
-/* 二元组重合率：这条坑跟前面几段"用了多少一样的话"。
- * 逐字复制会接近 1；换说法说同一件事通常在 0.5-0.8；
- * 全新的说法一般在 0.3 以下。 */
-function bigramOverlap(a, b) {
-  if (a.length < 4) return 0;
-  const grams = s => { const o = []; for (let i = 0; i < s.length - 1; i++) o.push(s.slice(i, i + 2)); return o; };
-  const setB = new Set(grams(b));
-  const A = grams(a);
-  return A.filter(x => setB.has(x)).length / A.length;
-}
+const TRAP_LCS_MIN = 20;
 
 function lcsLen(a, b) {
   if (!a || !b) return 0;
@@ -156,15 +144,14 @@ Object.keys(D.MANUALS).forEach(key => {
   if (!others) return;
 
   secs.trap.split('\n').filter(l => l.indexOf('·') === 0).forEach(line => {
-    const bold = line.match(/\*\*(.+?)\*\*/);
-    const head = bold ? bold[1] : line.replace(/^·\s*/, '').slice(0, 20);
-    const hit = lcsLen(head, others);
-    const ov = bigramOverlap(head, others);
-    if (hit >= TRAP_LCS_MIN || ov >= TRAP_BIGRAM_MIN) {
-      const why = hit >= TRAP_LCS_MIN
-        ? '跟前面重了 ' + hit + ' 个字（逐字）'
-        : '跟前面用词重合 ' + Math.round(ov * 100) + '%（换了个说法）';
-      rows.push([key + '.trap', '坑是复述', head.slice(0, 22), why + '——要么删掉，要么改成"副作用"']);
+    /* 比的是整条，不是加粗标题——
+     * 标题只有十来个字，重合率高是噪音；
+     * 而且标题短，比出来的公共片段也短，说明不了问题。 */
+    const body = line.replace(/^·\s*/, '').replace(/\*\*/g, '');
+    const hit = lcsLen(body, others);
+    if (hit >= TRAP_LCS_MIN) {
+      rows.push([key + '.trap', '坑里整句照抄', body.slice(0, 24),
+        '跟前面有 ' + hit + ' 个字一字不差——那不是"说得更深"，是搬过来了']);
       problems++;
     }
   });
