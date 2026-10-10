@@ -168,6 +168,7 @@ function renderPreQuestion(q, key, ids) {
 }
 
 function goToPre() {
+  if (window.observeStart) window.observeStart();   // 实测计时清零（observe.js 没加载时空操作）
   track('start');
   renderPreQuestion(PRE_QUESTION, 'pre',
     { title: 'pre-title', desc: 'pre-desc', options: 'pre-options', next: 'btn-pre-next' });
@@ -286,6 +287,11 @@ function setDur(el, sid, dur) {
 }
 
 function nextTeam() {
+  /* 实测计时：记下这个团队花了多久（observe.js 没加载时是空操作） */
+  if (window.observeTeam) {
+    var cur = TEAMS.filter(function (t) { return t.id === state.teams[state.teamIdx]; })[0];
+    window.observeTeam(cur ? cur.name : '团队 ' + (state.teamIdx + 1));
+  }
   state.teamIdx++;
   if (state.teamIdx >= state.teams.length) { renderCross(); }
   else { renderSurvey(); }
@@ -642,6 +648,19 @@ function renderReport() {
   html += renderScriptCard(top[0]);
   html += renderCaptureCard();
   html += renderL2Entry();
+
+  /* 实测模式：把每个团队的用时列出来。
+   * 这一块只有带 ?observe=1 的时候才出现，真实用户看不到。 */
+  if (/[?&]observe=1/.test(location.search)) {
+    var obsRounds = [];
+    try { obsRounds = JSON.parse(localStorage.getItem('obs-rounds') || '[]'); } catch (e) {}
+    if (obsRounds.length) {
+      html += '<div class="note-box"><b>实测数据</b>（这一块只有你看得到）<br>' +
+              obsRounds.map(function (r) { return esc(r.team) + '　' + r.sec + ' 秒'; }).join('　·　') +
+              '<br>第一个和第二个差得越多，说明他越早开始不看内容了。</div>';
+    }
+  }
+
   html += renderBoundary();
   body.innerHTML = html;
   fillResultLink();
