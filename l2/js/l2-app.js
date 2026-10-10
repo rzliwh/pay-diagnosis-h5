@@ -44,6 +44,18 @@ function symptomsFromParams() {
   }).filter(Boolean);
 }
 
+/* 他把某个问题答成了什么——按他选的选项原话取。
+ * 冲突提醒里必须用这个，不能写死。
+ * （踩过一次：提醒里写死「你想一两个月看到变化」，而他答的是「半年到一年」——
+ *  工具在说一件他根本没说过的话，比逻辑错还难看。） */
+function answerLabel(p, qid) {
+  var q = L2_QUESTIONS.filter(function (x) { return x.id === qid; })[0];
+  if (!q) return '';
+  var v = p.get('a_' + qid);
+  var opt = q.options.filter(function (o) { return o.value === v; })[0];
+  return opt ? opt.label.replace(/（.*?）/, '') : '';
+}
+
 /* 四个约束答案，整理成一句人话（一页纸上要用） */
 function constraintsLine(p) {
   return L2_QUESTIONS.map(function (q) {
@@ -84,18 +96,18 @@ function conflictWarnings(planId, plan, p) {
   var then = nextStep(planId, p);
 
   if (p.get('a_cash') === 'tight' && cc.costsMoney) {
-    out.push('**这一步要花钱。** 你说过今年现金流紧——' + then + '。');
+    out.push('**这一步要花钱。** 你说过今年现金流「' + answerLabel(p, 'cash') + '」——' + then + '。');
   }
   if (p.get('a_scope') === 'none' && cc.touchesExisting) {
-    out.push('**这一步会动到现有人的收入。** 你说过存量基本动不了——先动增量的：新业务、新人的机制先建起来，老的先不动。');
+    out.push('**这一步会动到现有人的收入。** 你说过存量「' + answerLabel(p, 'scope') + '」——先动增量的：新业务、新人的机制先建起来，老的先不动。');
   }
   if (p.get('a_power') === 'tune' && cc.needsReset) {
-    out.push('**这一步是重设，不是调一个参数。** 你说过想先调一个地方——那这一步现在做不了，' + then + '。');
+    out.push('**这一步是重设，不是调一个参数。** 你说的是「' + answerLabel(p, 'power') + '」——那这一步现在做不了，' + then + '。');
   }
   var want = { fast: 1, season: 2, long: 3 }[p.get('a_window')] || 3;
   var got = { fast: 1, cycle: 2, year: 3 }[plan.seeSpeed] || 2;
   if (want < got) {
-    out.push('**你想一两个月看到变化，但这一步最快也要' +
+    out.push('**你希望在「' + answerLabel(p, 'window') + '」内看到变化，但这一步最快也要' +
              (plan.seeSpeed === 'year' ? '跨年' : '一个完整结算周期') + '才显形。** ' + then + '。');
   }
   return out;
