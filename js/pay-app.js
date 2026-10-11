@@ -193,6 +193,11 @@ function pickPre(el, key, optBoxId, nextBtnId) {
 
 /* ==================== 选团队 ==================== */
 function goToTeams() {
+  /* 这个函数有两个入口：
+   *   ① 前置问2 的「下一步」（正常往前走，index.html）
+   *   ② 报告页的「回去改选团队」（往回走）
+   * 埋点打在这儿，往回走时会重算一次 pre-done —— 分母略微偏大，
+   * 但比"往前走的正常路径不打点"要好（那个会让分母偏小）。 */
   track('pre-done');
   var grid = document.getElementById('team-grid');
   grid.innerHTML = TEAMS.map(function (t) {
@@ -218,7 +223,25 @@ function toggleTeam(el) {
 
 /* ==================== 症状问卷 ==================== */
 function startSurvey() {
+  /* 先清一遍：只保留「仍然选中的团队」+ 跨团队 + 对外 的答案。
+   *
+   * 不这么做会出这个 bug —— 用户从报告页返回、改选团队：
+   *   [销售、生产、交付] → 答完 → 返回，改成 [销售、生产]
+   *   交付那几屏的答案还留在 state.answers 里，照样参与打分、照样进报告。
+   * 用户看不到它，但它算进去了。
+   *
+   * 反过来，仍然选中的团队，答案留着 —— 回去只是想加一个团队的话，
+   * 不用把前面的重答一遍。 */
+  var keep = { cross: 1, external: 1 };
+  state.teams.forEach(function (t) { keep[t] = 1; });
+  Object.keys(state.answers).forEach(function (sid) {
+    var a = state.answers[sid];
+    var t = (a && a.team) || (SYMPTOMS.filter(function (x) { return x.id === sid; })[0] || {}).team;
+    if (!keep[t]) delete state.answers[sid];
+  });
+
   state.teamIdx = 0;
+  saveState();
   renderSurvey();
 }
 
@@ -327,8 +350,6 @@ function nextTeam() {
   if (state.teamIdx >= state.teams.length) { renderCross(); }
   else { renderSurvey(); }
 }
-
-function skipTeam() { nextTeam(); }
 
 /* ==================== 跨团队轮 ==================== */
 function renderCross() {
@@ -694,6 +715,15 @@ function renderReport() {
   }
 
   html += renderBoundary();
+
+  /* 回去改选团队——报告页唯一的返回入口。
+   * 必须写清「取消勾选会丢掉什么」，不然用户会以为答案还留着——
+   * 那正是 startSurvey 里那个 bug 的成因。 */
+  html += '<p class="foot-back">' +
+            '<a onclick="goToTeams()">回去改选团队</a>' +
+            '<span>取消勾选的团队，它那几屏的答案会一起清掉；仍然选中的，答案留着。</span>' +
+          '</p>';
+
   body.innerHTML = html;
   fillResultLink();
 

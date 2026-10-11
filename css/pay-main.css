@@ -240,6 +240,17 @@ body {
 .h-sec { font-size: 20px; font-weight: 800; color: #0F172A; line-height: 1.35; margin-bottom: 8px; }
 .p-sec { font-size: 13.5px; color: #64748B; line-height: 1.6; margin-bottom: 20px; }
 
+/* 报告页底部的返回入口 */
+.foot-back { text-align: center; margin-top: 20px; }
+.foot-back a {
+  font-size: 13px; color: #0F766E; font-weight: 600;
+  cursor: pointer; text-decoration: underline;
+}
+.foot-back span {
+  display: block; font-size: 11.5px; color: #94A3B8;
+  margin-top: 5px; line-height: 1.7;
+}
+
 .note-box {
   background: #F8FAFC;
   border-left: 3px solid #CBD5E1;
