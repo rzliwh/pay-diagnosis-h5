@@ -238,6 +238,11 @@ body {
 
 /* ========== 通用标题 ========== */
 .h-sec { font-size: 20px; font-weight: 800; color: #0F172A; line-height: 1.35; margin-bottom: 8px; }
+
+/* 次要区块的标题。原来是在两处内联改字号（17px / 16px）——
+ * 那是"补丁"：想降级但没定规则，就地改了个数字。
+ * 收成一个类，以后降级就写 h-sub。 */
+.h-sec.h-sub { font-size: 16px; color: #334155; margin-top: 30px; }
 .p-sec { font-size: 13.5px; color: #64748B; line-height: 1.6; margin-bottom: 20px; }
 
 /* 报告页底部的返回入口（按钮用 btn-primary，跟上面「复制链接」一样大） */
@@ -268,7 +273,13 @@ body {
   margin-bottom: 14px;
   background: #fff;
 }
-.chain-card.rank-1 { border-color: #0F766E; box-shadow: 0 4px 18px rgba(15,118,110,0.10); }
+/* 主诊断卡是这一页最重的一块——它是结论，其余都是补充。
+ * 边框加粗、阴影加深，跟「需要排除的」和后面那些块拉开分量。 */
+.chain-card.rank-1 {
+  border-color: #0F766E;
+  border-width: 2px;
+  box-shadow: 0 6px 24px rgba(15,118,110,0.14);
+}
 .chain-rank {
   display: inline-block;
   font-size: 11px; font-weight: 700;

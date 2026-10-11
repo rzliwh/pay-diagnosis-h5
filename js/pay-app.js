@@ -670,7 +670,15 @@ function renderReport() {
   html += '<h2 class="h-sec">你勾了 ' + answered.length + ' 个现象</h2>';
   html += '<p class="p-sec">下面按可能性排序。这是待确认的假设，不是结论。</p>';
 
-  /* 时间读出来的东西：这套机制是不是「老了」 */
+  /* 一张主诊断（完整卡），其余降级成「需要排除的」一行。
+   * 三条并列会让用户以为有三个答案——而这是一份诊断书：
+   * 一个主诊断，附一份鉴别。 */
+  html += renderChainCard(top[0], '最可能', 0);
+
+  /* 两个提示放在主诊断后面。
+   * 原来它们在主诊断上面——等于把结论压到了注释后面。
+   * 而且它们本来就是「关于这个诊断的补充」：一个说这套机制老了没，
+   * 一个说前两条差别大不大。 */
   var dp = durProfile();
   if (dp && dp.yearRatio >= DEGRADE_RATIO) {
     html += '<div class="note-box warn">你勾的现象里，有 ' + dp.year +
@@ -682,17 +690,12 @@ function renderReport() {
             '<b>先想清楚最近改过什么</b>——换了人、调了目标、改了提成比例，往往比机制本身更值得查。</div>';
   }
 
-  /* 置信度：分差小的时候，最可能和其次其实是并列的，要说出来 */
   var conf = judgeConfidence(chains);
   if (conf === 'mid' && top.length > 1) {
     html += '<div class="note-box">前两个的<b>差别不大</b>，先别急着认定是哪一个——' +
             '先用下面「需要排除的」排一遍，排不掉再回来。</div>';
   }
 
-  /* 一张主诊断（完整卡），其余降级成「需要排除的」一行。
-   * 三条并列会让用户以为有三个答案——而这是一份诊断书：
-   * 一个主诊断，附一份鉴别。 */
-  html += renderChainCard(top[0], '最可能', 0);
   for (var ei = 1; ei < top.length; ei++) {
     html += renderExcludeCard(top[ei]);
   }
@@ -866,7 +869,7 @@ function matchedPrinciples(chains) {
 function renderPrinciples(chains) {
   var list = matchedPrinciples(chains);
   if (!list.length) return '';
-  var html = '<h2 class="h-sec" style="font-size:17px;margin-top:28px">几条跟这次诊断相关的判断</h2>' +
+  var html = '<h2 class="h-sec h-sub">几条跟这次诊断相关的判断</h2>' +
              '<p class="p-sec">从真实案例里反复验证过、又被反例修正过的。' +
              '不是通用大道理——只挑跟你这次勾的现象相关的。</p>';
   html += '<div class="principle-card"><ul>';
@@ -1053,7 +1056,7 @@ function renderPredictMode() {
   if (picks.length) {
     // 注意措辞：工具并不知道你「打算怎么分」，它只知道你看的是哪个团队。
     // 说成「预测」是吹牛，说成「对照清单」才是真的。
-    html += '<h2 class="h-sec" style="font-size:16px;margin-top:8px">这个团队最常见、也最先出现的几个信号</h2>' +
+    html += '<h2 class="h-sec h-sub" style="margin-top:8px">这个团队最常见、也最先出现的几个信号</h2>' +
             '<p class="p-sec">这不是针对你的诊断——你没勾任何现象，可能是真没问题，也可能是还没显影。' +
             '把这几条记下来，过几个月回头对一遍。<b>机制不是设下去当天就坏的，是几个月之后坏的。</b></p>' +
             '<ul class="warn-list">' +
