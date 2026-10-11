@@ -133,6 +133,19 @@
 
   </div>
 
+  <!-- 出口确认：勾太多时点「看结果」先弹这个。默认隐藏，个数由 JS 填。
+       放在 .app-container 外面、body 下面，才不会跟 showPage() 的整屏显隐打架。 -->
+  <div class="gate-mask" id="over-gate" style="display:none" role="dialog" aria-modal="true">
+    <div class="gate-card animate-fade-in-up">
+      <div class="gate-title">你勾得有点多了</div>
+      <div class="gate-body">你勾的现象指向 <b id="over-gate-n">0</b> 个病因，已经超过一半。到了报告里，它们会一起排出来，主次就分不清了。往回改改，只留你一想起就头疼的那几条，报告会更准。</div>
+      <div class="btn-row">
+        <button class="btn-primary" id="over-gate-back" onclick="gateBack()">回去删几条</button>
+        <button class="btn-ghost" onclick="gateProceed()">就这样看</button>
+      </div>
+    </div>
+  </div>
+
   <script src="js/pay-data.js"></script>
   <script src="js/pay-app.js"></script>
 </body>

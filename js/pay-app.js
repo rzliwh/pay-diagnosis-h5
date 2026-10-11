@@ -307,23 +307,31 @@ function setSev(sid, sev, teamId) {
 /* 「勾太多了」的提醒，**在勾选的时候就出现，不等报告页**。
  * 到了报告页才说，他只能推倒重来；在这儿说，他抬抬手就能改。
  *
- * 判据：命中的病因超过全部的一半。
+ * 判据：命中的病因超过全部的一半（见 overLimit()，实时提示和出口确认共用这一处）。
  * 为什么是这个数：勾 10 条时第一名占 79%（那时候它在诊断）；
  * 勾 110 条时 30 个病因全被激活、第一名只占 7%，
  * 那时候的第一名不是"你的问题最可能是哪个"，是"规则库里哪条病因的症状写得最广"。
  */
+/* 「勾太多了」的判据，只有一个来源：
+ * 答题卡上方的实时提示、和点「看结果」时的出口确认，都调它。
+ * 注意：这里不能依赖 DOM，报告页、没有 .over-note 的页面也会调。 */
+function overLimit() {
+  var scores = scoreCauses();
+  var n = Object.keys(scores).filter(function (c) { return scores[c].score > 0; }).length;
+  var half = Math.ceil(CAUSES.length / 2);
+  return { n: n, half: half, over: n >= half };
+}
+
 function updateOverNote() {
   var els = document.querySelectorAll('.over-note');
   if (!els.length) return;
 
-  var scores = scoreCauses();
-  var n = Object.keys(scores).filter(function (c) { return scores[c].score > 0; }).length;
-  var half = Math.ceil(CAUSES.length / 2);
+  var r = overLimit();
 
   var msg = '';
-  if (n >= half) {
-    msg = '<b>你勾的现象，已经指向 ' + n + ' 个病因了，超过一半。</b><br>' +
-          '这不是说你有 ' + n + ' 个问题，是说<b>勾得越多，越分不出主次</b>：' +
+  if (r.over) {
+    msg = '<b>你勾的现象，已经指向 ' + r.n + ' 个病因了，超过一半。</b><br>' +
+          '这不是说你有 ' + r.n + ' 个问题，是说<b>勾得越多，越分不出主次</b>：' +
           '一条病因可能靠「沾边」就进了榜。<br>' +
           '往回改改：<b>只留你一想起就头疼的那几条</b>，把「好像也有一点」的去掉。';
   }
@@ -625,7 +633,13 @@ function saveArchive() {
 }
 
 /* ==================== 结果页 ==================== */
-function goToLoading() {
+/* 出口确认：命中病因超过一半时，点「看结果」不直接出报告，先拦一次。
+ * 放行靠 force 参数，不落任何持久化状态：
+ * 刷新、改答案、从报告页绕一圈重进，都会重新武装，不会漏拦。 */
+function goToLoading(force) {
+  var r = overLimit();
+  if (!force && r.over) { showOverGate(r); return; }
+
   showPage('page-loading');
   saveState();
   var steps = ['正在把现象对应到机制上…', '正在排除别的可能…', '正在排序…'];
@@ -635,6 +649,52 @@ function goToLoading() {
     if (i < steps.length) { document.getElementById('loading-text').textContent = steps[i]; }
   }, 420);
   setTimeout(function () { clearInterval(t); renderReport(); }, 1300);
+}
+
+function lockScroll(on) {
+  /* html 和 body 都写：标准模式下视口滚动条归 documentElement。
+   * 关的时候恢复成 ''，别留 inline 残渣。 */
+  var v = on ? 'hidden' : '';
+  document.documentElement.style.overflow = v;
+  document.body.style.overflow = v;
+}
+
+function showOverGate(r) {
+  track('over-gate');
+  var nEl = document.getElementById('over-gate-n');
+  if (nEl) nEl.textContent = r.n;
+  document.getElementById('over-gate').style.display = 'flex';
+  lockScroll(true);
+  var back = document.getElementById('over-gate-back');
+  if (back) back.focus();
+}
+
+function closeOverGate() {
+  document.getElementById('over-gate').style.display = 'none';
+  lockScroll(false);
+}
+
+/* 「回去删几条」：先关层恢复滚动，再往上滚（否则 scrollTo 会被 overflow:hidden 钳住）。
+ * 用户可能本来就停在顶部，光滚动没有反馈，所以让那条琥珀提示闪一下。 */
+function gateBack() {
+  closeOverGate();
+  window.scrollTo(0, 0);
+  var note = document.querySelector('#page-cross .over-note');
+  if (!note) return;
+  note.classList.remove('over-flash');
+  void note.offsetWidth;   // 强制 reflow，保证连着点两次都能闪
+  note.classList.add('over-flash');
+  note.addEventListener('animationend', function h() {
+    note.classList.remove('over-flash');
+    note.removeEventListener('animationend', h);
+  });
+}
+
+/* 「就这样看」：放行，直接进报告 */
+function gateProceed() {
+  closeOverGate();
+  track('over-gate-skip');
+  goToLoading(true);
 }
 
 function renderReport() {

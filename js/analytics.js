@@ -41,7 +41,12 @@ var BAIDU_TONGJI_ID = '3c486c9237fc260c75b575342a69cd70';
  *   survey-done  症状过完、进入跨团队轮
  *   report       拿到结果
  *
- * 在百度统计后台「事件分析」里看，事件分类是 pay、动作是上面四个。
+ * 另外两个点专门量「勾太多」那道出口确认的效果，不参与完诊率：
+ *   over-gate       命中病因超一半，点「看结果」被拦下
+ *   over-gate-skip  被拦下之后选「就这样看」，带着风险进报告
+ *   （被拦下后回去删的比例 = 1 − over-gate-skip / over-gate）
+ *
+ * 在百度统计后台「事件分析」里看，事件分类是 pay、动作是上面这些。
  * 完诊率 = report / start。
  */
 function trackStep(step) {

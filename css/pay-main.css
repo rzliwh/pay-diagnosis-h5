@@ -616,6 +616,34 @@ body {
 }
 .animate-fade-in-up { animation: fadeInUp 0.4s ease forwards; }
 
+/* ========== 出口确认（勾太多时点「看结果」） ==========
+ * 用琥珀，跟答题卡上方那条 over-note 是同一件事，只是升级成必须回应。
+ * 只做顶部一条琥珀描边，不铺底，免得更上面的 note-box.warn 糊成一片。 */
+.gate-mask {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 100;                        /* 压过 #progress-container 的 50 */
+  background: rgba(15, 23, 42, 0.45);
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+}
+.gate-card {
+  width: 100%; max-width: 340px;
+  background: #fff; border-radius: 18px;
+  border-top: 4px solid #F59E0B;
+  padding: 22px 20px 18px;
+  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.22);
+}
+.gate-title { font-size: 16.5px; font-weight: 800; color: #1E293B; margin-bottom: 10px; }
+.gate-body { font-size: 13px; color: #475569; line-height: 1.7; }
+.gate-body b { color: #92400E; }
+
+/* 「回去删几条」之后，让那条警告闪一下，告诉他该看哪儿 */
+@keyframes overFlash {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+  50%      { box-shadow: 0 0 0 6px rgba(245, 158, 11, 0.20); }
+}
+.over-note.over-flash { animation: overFlash 0.9s ease 2; }
+
 /* ========== 移动端 ========== */
 @media (max-width: 480px) {
   .app-container { box-shadow: none; }
