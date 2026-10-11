@@ -16,7 +16,19 @@ function passthrough(extra) {
   return p.toString();
 }
 function go(page, extra) { window.location.href = page + '?' + passthrough(extra); }
-function esc(s) { return String(s == null ? '' : s); }
+/* 把文本安全地放进 HTML：先转义，再把 **…** 变成加粗。
+ *
+ * 这个名字一直叫 esc，但它以前什么都不做 —— 于是手册里 1641 处的 **
+ * 全部裸露在页面上（写手册时用的是 markdown 的加粗）。
+ * 转义要在加粗之前做，否则 ** 里的 * 会被一起转掉。
+ */
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
+}
 
 function planOfId(id) { return PLANS[id] || null; }
 function causeByCode(code) { return CAUSES.filter(function (c) { return c.code === code; })[0]; }
@@ -118,6 +130,7 @@ function firstSentence(manual, key) {
   var t = (manual && manual.sections && manual.sections[key]) || '';
   if (!t) return '';
   var line = t.split('\n').filter(function (l) { return l && l.indexOf('·') !== 0 && l.indexOf('**') !== 0; })[0] || '';
+  line = line.replace(/^\d+\.\s*/, '');   // 手册里是「1. xxx」，一页纸上不要那个序号
   return line.split('。')[0] ? line.split('。')[0] + '。' : '';
 }
 
@@ -157,7 +170,11 @@ function onePagerRows(plan, manual, p) {
 
   var ok = firstCriterion(manual, 'success');
   if (ok) out.push(['什么算做成', ok]);
-  if (plan.effectWindow) out.push(['多久回来看', plan.effectWindow]);
+  /* 「多久回来看」要填一个**时间点**，别把上面那条判据重说一遍。
+   * （踩过：直接放 effectWindow 的时候，k1-metric 那篇的「什么算做成」
+   *   和这一行说的是同一件事——「他开始算这个数」出现了两次。） */
+  var SPEED_CN = { fast: '一两个月后就看得出', cycle: '一个结算周期之后', year: '要跨年才看得出来' };
+  if (plan.seeSpeed && SPEED_CN[plan.seeSpeed]) out.push(['多久回来看', SPEED_CN[plan.seeSpeed]]);
   if (plan.decider) out.push(['这一步谁拍板', plan.decider]);
 
   return out;

@@ -730,6 +730,13 @@ function renderReport() {
   showPage('page-report');
 }
 
+/* L1 的报告页是拼字符串的（没有统一的转义函数），
+ * 但两说卡的「中间路径」那段用了 markdown 的 ** 加粗 —— 在这里把 ** 转成加粗。
+ * L2 那边是 esc() 一起做的。 */
+function mdBold(s) {
+  return String(s == null ? '' : s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
+}
+
 function renderChainCard(ch, rankLabel, idx) {
   var c = ch.nodes[ch.nodes.length - 1];
   var html = '<div class="chain-card rank-' + (idx + 1) + '">';
@@ -794,7 +801,7 @@ function renderChainCard(ch, rankLabel, idx) {
               '<div class="b-label">两说 · ' + t.title + '　没有标准答案，看你取舍</div>' +
               '<div class="to-row"><span class="to-tag">一边</span><span class="to-text">' + t.a + '</span></div>' +
               '<div class="to-row"><span class="to-tag">另一边</span><span class="to-text">' + t.b + '</span></div>' +
-              '<div class="to-row to-mid"><span class="to-tag">中间</span><span class="to-text">' + t.mid + '</span></div>' +
+              '<div class="to-row to-mid"><span class="to-tag">中间</span><span class="to-text">' + mdBold(t.mid) + '</span></div>' +
             '</div>';
   });
 
