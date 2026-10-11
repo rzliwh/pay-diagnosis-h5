@@ -454,7 +454,7 @@ function renderReport() {
   }
 
   /* 边界 */
-  html += '<div class="l2-boundary"><div class="l2-boundary-title">这一层不做什么</div><ul>' +
+  html += '<div class="l2-boundary"><div class="l2-boundary-title">使用之前的几点澄清</div><ul>' +
           L2_BOUNDARY.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') +
           '</ul></div>';
 
