@@ -1,5 +1,5 @@
 /**
- * l2.css —— L2 层样式
+ * l2.css，L2 层样式
  * 延续 L1 的深青配色，但更克制：这一层是「读方案」，不是「做诊断」。
  */
 
@@ -151,7 +151,7 @@ body {
 .l2-answer-row b { color: #0F766E; font-weight: 700; white-space: nowrap; }
 
 /* 该动的地方：这一页的英雄区块。
- * 用户付 199 就是来看这个，所以给它背景、给它大字号——
+ * 用户付 199 就是来看这个，所以给它背景、给它大字号，
  * 其余所有块都是次要信息，不该跟它一个分量。 */
 .l2-plan-head {
   border-left: 4px solid #0F766E;
@@ -162,7 +162,7 @@ body {
 }
 .l2-plan-h2 { font-size: 23px; font-weight: 800; color: #0F172A; line-height: 1.4; margin: 6px 0 8px; }
 
-/* 「为什么是它」——证据段的分隔标 */
+/* 「为什么是它」，证据段的分隔标 */
 .l2-why-label {
   font-size: 12px; font-weight: 700; color: #94A3B8;
   letter-spacing: 1px;
@@ -186,7 +186,7 @@ body {
   border: 1px solid #99F6E4; border-radius: 20px; padding: 2px 10px;
 }
 
-/* 「谁能改」的所以呢——说了谁拍板，还要说清你自己推不动 */
+/* 「谁能改」的所以呢，说了谁拍板，还要说清你自己推不动 */
 .l2-who-note {
   margin-top: 12px;
   background: #FFFBEB;

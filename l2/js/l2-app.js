@@ -1,5 +1,5 @@
 /**
- * l2-app.js —— L2 层逻辑（四段页面链）
+ * l2-app.js，L2 层逻辑（四段页面链）
  *
  * 页面链：index.html（介绍）→ pay.html（支付）→ survey.html（补问卷）→ report.html（方案）
  * 靠 URLSearchParams 一路透传，不依赖后端。
@@ -18,7 +18,7 @@ function passthrough(extra) {
 function go(page, extra) { window.location.href = page + '?' + passthrough(extra); }
 /* 把文本安全地放进 HTML：先转义，再把 **…** 变成加粗。
  *
- * 这个名字一直叫 esc，但它以前什么都不做 —— 于是手册里 1641 处的 **
+ * 这个名字一直叫 esc，但它以前什么都不做，于是手册里 1641 处的 **
  * 全部裸露在页面上（写手册时用的是 markdown 的加粗）。
  * 转义要在加粗之前做，否则 ** 里的 * 会被一起转掉。
  */
@@ -38,7 +38,7 @@ function causesFromParams() {
 }
 
 /* 这个改法挂了哪几张两说卡。
- * 按病因匹配，不按旋钮——旋钮一底下装着四种完全不同的毛病，按旋钮会误报。 */
+ * 按病因匹配，不按旋钮：旋钮一底下装着四种完全不同的毛病，按旋钮会误报。 */
 function tradeoffsOfPlan(planId) {
   return TRADEOFFS.filter(function (t) {
     return t.causes.some(function (c) { return PLAN_OF[c] === planId; });
@@ -46,7 +46,7 @@ function tradeoffsOfPlan(planId) {
 }
 
 /* 他从 L1 一路带过来的现象（勾中 + 严重度）。
- * 这是「他自己的证据」——比任何通用清单都有说服力。 */
+ * 这是「他自己的证据」，比任何通用清单都有说服力。 */
 function symptomsFromParams() {
   var raw = params().get('sym') || '';
   return raw.split(',').filter(Boolean).map(function (pair) {
@@ -56,9 +56,9 @@ function symptomsFromParams() {
   }).filter(Boolean);
 }
 
-/* 他把某个问题答成了什么——按他选的选项原话取。
+/* 他把某个问题答成了什么，按他选的选项原话取。
  * 冲突提醒里必须用这个，不能写死。
- * （踩过一次：提醒里写死「你想一两个月看到变化」，而他答的是「半年到一年」——
+ * （踩过一次：提醒里写死「你想一两个月看到变化」，而他答的是「半年到一年」，
  *  工具在说一件他根本没说过的话，比逻辑错还难看。） */
 function answerLabel(p, qid) {
   var q = L2_QUESTIONS.filter(function (x) { return x.id === qid; })[0];
@@ -78,7 +78,7 @@ function constraintsLine(p) {
 }
 
 /* 在他自己的诊断结果里，找一个跟他约束不冲突的改法。
- * 通用的「先动那个不花钱的」是废话——他还得自己回去找；
+ * 通用的「先动那个不花钱的」是废话，他还得自己回去找；
  * 说「你这次还命中了 X，那一步不冲突」，他直接能走。 */
 function nextStep(planId, p) {
   var cs = causesFromParams();
@@ -99,7 +99,7 @@ function nextStep(planId, p) {
 }
 
 /* 他的方案跟他自己答的约束，打不打架。
- * 这是这个工具最该做的一件事——给一个他做不了的方案，还一声不吭。 */
+ * 这是这个工具最该做的一件事，给一个他做不了的方案，还一声不吭。 */
 function conflictWarnings(planId, plan, p) {
   var cs = causesFromParams();
   if (!plan || !cs.length) return [];
@@ -108,13 +108,13 @@ function conflictWarnings(planId, plan, p) {
   var then = nextStep(planId, p);
 
   if (p.get('a_cash') === 'tight' && cc.costsMoney) {
-    out.push('**这一步要花钱。** 你说过今年现金流「' + answerLabel(p, 'cash') + '」——' + then + '。');
+    out.push('**这一步要花钱。** 你说过今年现金流「' + answerLabel(p, 'cash') + '」，' + then + '。');
   }
   if (p.get('a_scope') === 'none' && cc.touchesExisting) {
-    out.push('**这一步会动到现有人的收入。** 你说过存量「' + answerLabel(p, 'scope') + '」——先动增量的：新业务、新人的机制先建起来，老的先不动。');
+    out.push('**这一步会动到现有人的收入。** 你说过存量「' + answerLabel(p, 'scope') + '」，先动增量的：新业务、新人的机制先建起来，老的先不动。');
   }
   if (p.get('a_power') === 'tune' && cc.needsReset) {
-    out.push('**这一步是重设，不是调一个参数。** 你说的是「' + answerLabel(p, 'power') + '」——那这一步现在做不了，' + then + '。');
+    out.push('**这一步是重设，不是调一个参数。** 你说的是「' + answerLabel(p, 'power') + '」，那这一步现在做不了，' + then + '。');
   }
   var want = { fast: 1, season: 2, long: 3 }[p.get('a_window')] || 3;
   var got = { fast: 1, cycle: 2, year: 3 }[plan.seeSpeed] || 2;
@@ -135,7 +135,7 @@ function firstSentence(manual, key) {
 }
 
 /* 「什么算成功」那一段里的第一条判据。
- * 要跳过两样：开头那句总纲，和「挑判据有两个门槛」下面那两条——
+ * 要跳过两样：开头那句总纲，和「挑判据有两个门槛」下面那两条，
  * 门槛是审查标准，不是判据本身。 */
 function firstCriterion(manual, key) {
   var t = (manual && manual.sections && manual.sections[key]) || '';
@@ -150,7 +150,7 @@ function firstCriterion(manual, key) {
 }
 
 /* 带走的那一页：七行，全部来自已经有的数据，一个字都不用新写。
- * 这一页是给 HR 拿去说服别人的——L1 给的是一句话，L2 给的是一页。 */
+ * 这一页是给 HR 拿去说服别人的，L1 给的是一句话，L2 给的是一页。 */
 function onePagerRows(plan, manual, p) {
   var out = [];
   var cs = causesFromParams();
@@ -172,7 +172,7 @@ function onePagerRows(plan, manual, p) {
   if (ok) out.push(['什么算做成', ok]);
   /* 「多久回来看」要填一个**时间点**，别把上面那条判据重说一遍。
    * （踩过：直接放 effectWindow 的时候，k1-metric 那篇的「什么算做成」
-   *   和这一行说的是同一件事——「他开始算这个数」出现了两次。） */
+   *   和这一行说的是同一件事，「他开始算这个数」出现了两次。） */
   var SPEED_CN = { fast: '一两个月后就看得出', cycle: '一个结算周期之后', year: '要跨年才看得出来' };
   if (plan.seeSpeed && SPEED_CN[plan.seeSpeed]) out.push(['多久回来看', SPEED_CN[plan.seeSpeed]]);
   if (plan.decider) out.push(['这一步谁拍板', plan.decider]);
@@ -189,7 +189,7 @@ function diagnosisSummary() {
 
 function confNote() {
   var conf = params().get('conf');
-  if (conf === 'mid') return '你这次的诊断里，前两条的差别不大——所以下面这份方案，先按可能性最高的那条来。';
+  if (conf === 'mid') return '你这次的诊断里，前两条的差别不大，所以下面这份方案，先按可能性最高的那条来。';
   if (conf === 'low') return '你这次的诊断证据偏弱。建议先别动机制，回去把那条确认动作做了。';
   return '';
 }
@@ -225,10 +225,10 @@ function renderIndex() {
   html += '<div class="l2-value">' +
             '<div class="l2-value-title">你会拿到</div>' +
             '<ul>' +
-              '<li><b>这一条改法的完整手册</b>——从「要不要动」到「怎么退回来」</li>' +
-              '<li><b>先动哪个、后动哪个</b>——一次只拧一个，那先拧哪个就是判断</li>' +
-              '<li><b>什么条件算成功</b>——不是感觉好了，是可检查的判据</li>' +
-              '<li><b>前提条件</b>——不满足的话，方案就是空头支票</li>' +
+              '<li><b>这一条改法的完整手册</b>，从「要不要动」到「怎么退回来」</li>' +
+              '<li><b>先动哪个、后动哪个</b>，一次只拧一个，那先拧哪个就是判断</li>' +
+              '<li><b>什么条件算成功</b>，不是感觉好了，是可检查的判据</li>' +
+              '<li><b>前提条件</b>，不满足的话，方案就是空头支票</li>' +
             '</ul>' +
           '</div>';
 
@@ -311,10 +311,10 @@ function renderReport() {
 
   var html = '';
 
-  /* 收不到改法就直接退出——先判，因为它决定后面有没有内容 */
+  /* 收不到改法就直接退出，先判，因为它决定后面有没有内容 */
   if (!plan) {
     html += '<h1 class="l2-h1">你的方案</h1>' +
-            '<div class="l2-note-box">没有收到改法信息——请从诊断结果页的入口重新进来。</div>';
+            '<div class="l2-note-box">没有收到改法信息，请从诊断结果页的入口重新进来。</div>';
     el.innerHTML = html;
     return;
   }
@@ -323,7 +323,7 @@ function renderReport() {
 
   /* ===== 1. 该动的地方（提到最前面）=====
    * 用户付了钱，最该先看到的就是这个。
-   * 诊断结果、你勾中的现象、约束条件那些，都是"凭什么说是它"——排在它后面。 */
+   * 诊断结果、你勾中的现象、约束条件那些，都是"凭什么说是它"，排在它后面。 */
   html += '<div class="l2-plan-head">' +
             '<div class="l2-plan-label">该动的地方</div>' +
             '<h2 class="l2-plan-h2">' + esc(plan.title) + '</h2>' +
@@ -333,10 +333,10 @@ function renderReport() {
               '<span class="l2-tag">需要 ' + esc(plan.decider || '—') + ' 拍板</span>' +
             '</div>' +
             '<div class="l2-who-note">这一步是<b>' + esc(plan.decider || '公司层') + '</b>拍板的。' +
-              '很多 HR 卡在这里——想在公司层的问题上做团队层的动作，推不动不是能力问题，是找错了人。</div>' +
+              '很多 HR 卡在这里，想在公司层的问题上做团队层的动作，推不动不是能力问题，是找错了人。</div>' +
           '</div>';
 
-  /* ===== 2. 约束冲突——紧跟改法 =====
+  /* ===== 2. 约束冲突，紧跟改法 =====
    * 它说的是"这个改法跟你打架"，所以必须挨着改法，不能等到手册后面。 */
   var warns = conflictWarnings(planId, plan, p);
   if (warns.length) {
@@ -349,7 +349,7 @@ function renderReport() {
   }
 
   /* ===== 3. 为什么是它（诊断结果 → 你勾中的现象 → 你的约束）=====
-   * 三块都是"凭什么说是它"，是证据，不是结论——排在结论后面。 */
+   * 三块都是"凭什么说是它"，是证据，不是结论，排在结论后面。 */
   html += '<div class="l2-why-label">为什么是它</div>';
 
   /* 诊断摘要 */
@@ -360,11 +360,11 @@ function renderReport() {
   var note = confNote();
   if (note) html += '<div class="l2-note-box">' + note + '</div>';
 
-  /* 你勾中的现象——他自己的证据，不是通用清单。
+  /* 你勾中的现象，他自己的证据，不是通用清单。
    *
    * 默认只显示「指向这次诊断」的那几条，其余折叠。
    * 为什么：用户付 199，翻了两屏看到的却是他自己刚勾过的东西，
-   * 而最该看到的答案被挤到后面去了。指向本次诊断的那几条最有力——
+   * 而最该看到的答案被挤到后面去了。指向本次诊断的那几条最有力，
    * 它们直接回答了"凭什么说是这个病"。 */
   var syms = symptomsFromParams();
   if (syms.length) {
@@ -409,14 +409,14 @@ function renderReport() {
     html += '</ul><div class="l2-block-foot">前提不成立的时候，方案就是空头支票。</div></div>';
   }
 
-  /* 多久能看出效果——这是「药的钟」。
+  /* 多久能看出效果，这是「药的钟」。
    * 跟病因卡上那个「大概什么时候能验证」（病的钟）是两回事：
    * 病多久显形，跟药多久见效，不是一回事，别混着用。 */
   if (plan.effectWindow) {
     html += '<div class="l2-block">' +
               '<div class="l2-block-label">多久能看出效果</div>' +
               '<div class="l2-effect">' + esc(plan.effectWindow) + '</div>' +
-              '<div class="l2-block-foot">这是「改完多久能知道有没有用」。跟病因卡上那个「大概什么时候能验证」是两个钟——病多久显形，跟药多久见效，不是一回事。</div>' +
+              '<div class="l2-block-foot">这是「改完多久能知道有没有用」。跟病因卡上那个「大概什么时候能验证」是两个钟，病多久显形，跟药多久见效，不是一回事。</div>' +
             '</div>';
   }
 
@@ -436,7 +436,7 @@ function renderReport() {
     html += '<div class="l2-todo">' +
               '<div class="l2-todo-title">这一篇还没写</div>' +
               '<div class="l2-todo-desc">骨架已经搭好了，按下面积累的六段填即可。' +
-              '写不出来的段就空着——空着比编一个好。</div>' +
+              '写不出来的段就空着，空着比编一个好。</div>' +
               '<ol class="l2-todo-list">' +
                 SECTION_OUTLINE.map(function (s) { return '<li>' + s.title + '</li>'; }).join('') +
               '</ol>' +
@@ -451,7 +451,7 @@ function renderReport() {
   html += '</div>';
 
   /* 两说卡：这件事没有唯一正确的答案，把两边的代价摆出来，不替你选。
-   * 放在手册后面——手册的「怎么改」里会写「见下面那张卡」。 */
+   * 放在手册后面，手册的「怎么改」里会写「见下面那张卡」。 */
   var cards = tradeoffsOfPlan(planId);
   if (cards.length) {
     html += '<div class="l2-block"><div class="l2-block-label">这件事没有标准答案，看你取舍</div>';
@@ -504,7 +504,7 @@ function toggleSyms() {
   btn.textContent = showing ? ('展开其余 ' + hidden.length + ' 条') : '收起';
 }
 
-/* 把「带走这一页」复制成纯文本——要能直接贴进微信、邮件、PPT */
+/* 把「带走这一页」复制成纯文本，要能直接贴进微信、邮件、PPT */
 function copyOnePager() {
   var box = document.getElementById('l2-onepager');
   if (!box) return;

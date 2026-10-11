@@ -1,5 +1,5 @@
 /**
- * pay-app.js —— 分钱机制诊断 · 应用逻辑
+ * pay-app.js，分钱机制诊断 · 应用逻辑
  *
  * 流程：欢迎 → 资源分配前置问 → 选团队 → 逐团队过症状(三态) → 跨团队轮 → 结果
  *
@@ -25,7 +25,7 @@ function saveState() {
 
 /* ==================== 规则库运行时检查 ====================
  * 为什么要有这个：改 pay-data.js 是直接刷新页面的，不会每次都去跑 node tools/selfcheck.js。
- * 而下面这些错全是「静默失败」——不报错，只是答案慢慢变得不对。
+ * 而下面这些错全是「静默失败」，不报错，只是答案慢慢变得不对。
  *
  * 所以浏览器里也要检一遍，有问题就在 console 里喊。
  * 这个函数只报错，不改行为：页面上线时照常跑，不会因为一条规则写错就白屏。
@@ -98,7 +98,7 @@ function validateRulebook() {
 }
 
 /* ==================== 埋点 ====================
- * 完诊率是唯一值得先看的指标：它当天可测，而且是「行动率」的上限——
+ * 完诊率是唯一值得先看的指标：它当天可测，而且是「行动率」的上限，
  * 没走完的人不可能去验证任何事。
  *
  * 包一层是为了防 analytics.js 没加载时把主流程带崩。
@@ -125,7 +125,7 @@ function totalSteps() {
   return 5 + Math.max(state.teams.length, 1);
 }
 
-// 必须由 showPage 把 id 传进来——不能回头去查 .active，
+// 必须由 showPage 把 id 传进来，不能回头去查 .active，
 // 因为 active 是下一帧才加上的，这里查会查不到。
 function updateProgress(id) {
   var labeled = {
@@ -196,7 +196,7 @@ function goToTeams() {
   /* 这个函数有两个入口：
    *   ① 前置问2 的「下一步」（正常往前走，index.html）
    *   ② 报告页的「返回修改」（往回走）
-   * 埋点打在这儿，往回走时会重算一次 pre-done —— 分母略微偏大，
+   * 埋点打在这儿，往回走时会重算一次 pre-done，分母略微偏大，
    * 但比"往前走的正常路径不打点"要好（那个会让分母偏小）。 */
   track('pre-done');
   var grid = document.getElementById('team-grid');
@@ -225,12 +225,12 @@ function toggleTeam(el) {
 function startSurvey() {
   /* 先清一遍：只保留「仍然选中的团队」+ 跨团队 + 对外 的答案。
    *
-   * 不这么做会出这个 bug —— 用户从报告页返回、改选团队：
+   * 不这么做会出这个 bug，用户从报告页返回、改选团队：
    *   [销售、生产、交付] → 答完 → 返回，改成 [销售、生产]
    *   交付那几屏的答案还留在 state.answers 里，照样参与打分、照样进报告。
    * 用户看不到它，但它算进去了。
    *
-   * 反过来，仍然选中的团队，答案留着 —— 回去只是想加一个团队的话，
+   * 反过来，仍然选中的团队，答案留着，回去只是想加一个团队的话，
    * 不用把前面的重答一遍。 */
   var keep = { cross: 1, external: 1 };
   state.teams.forEach(function (t) { keep[t] = 1; });
@@ -304,12 +304,12 @@ function setSev(sid, sev, teamId) {
   updateOverNote();
 }
 
-/* 「勾太多了」的提醒——**在勾选的时候就出现，不等报告页**。
+/* 「勾太多了」的提醒，**在勾选的时候就出现，不等报告页**。
  * 到了报告页才说，他只能推倒重来；在这儿说，他抬抬手就能改。
  *
  * 判据：命中的病因超过全部的一半。
  * 为什么是这个数：勾 10 条时第一名占 79%（那时候它在诊断）；
- * 勾 110 条时 30 个病因全被激活、第一名只占 7%——
+ * 勾 110 条时 30 个病因全被激活、第一名只占 7%，
  * 那时候的第一名不是"你的问题最可能是哪个"，是"规则库里哪条病因的症状写得最广"。
  */
 function updateOverNote() {
@@ -322,7 +322,7 @@ function updateOverNote() {
 
   var msg = '';
   if (n >= half) {
-    msg = '<b>你勾的现象，已经指向 ' + n + ' 个病因了——超过一半。</b><br>' +
+    msg = '<b>你勾的现象，已经指向 ' + n + ' 个病因了，超过一半。</b><br>' +
           '这不是说你有 ' + n + ' 个问题，是说<b>勾得越多，越分不出主次</b>：' +
           '一条病因可能靠「沾边」就进了榜。<br>' +
           '往回改改：<b>只留你一想起就头疼的那几条</b>，把「好像也有一点」的去掉。';
@@ -364,7 +364,7 @@ function renderCross() {
 
 /* ==================== 时间：聚合层的「多久了」 ====================
  * 注意：dur 只在 sev=2 时才存在（只有「反复发生」才会被问「多久了」）。
- * 所以它不能逐条参与加权——那等于把「反复发生」这个信号算两遍。
+ * 所以它不能逐条参与加权，那等于把「反复发生」这个信号算两遍。
  *
  * 唯一不冗余的用法是聚合：一套机制是不是「老了」，是这套机制的属性，
  * 不是某一条症状的属性。
@@ -488,7 +488,7 @@ function buildChains(scores) {
     used[parent] = true;
 
     /* 双节点链的分数：取两节点的较大值 + 一个显式定额。
-     * 不能用相加——相加会让任何能合并的链必然排在前面，
+     * 不能用相加，相加会让任何能合并的链必然排在前面，
      * 那是公式的副产品，不是「这条链解释力更强」的判断。 */
     chains.push({
       nodes: [causeByCode(parent), c],
@@ -524,12 +524,12 @@ function buildChains(scores) {
 
 /* ==================== 诊断档案 ====================
  * L1 必须产出一份结构化的东西交给 L2，而不是一屏 HTML。
- * 否则 L1 和 L2 之间是靠用户的记忆耦合的——他得自己记得三个月前勾了什么。
+ * 否则 L1 和 L2 之间是靠用户的记忆耦合的，他得自己记得三个月前勾了什么。
  *
  * 档案里带三样 L2 要用的东西：
- *   1. 改法键（plan）——L2 用它取手册。不是病因代码。
- *   2. 置信度（confidence）——决定 L2 给一篇还是两篇对照。
- *   3. 时间画像（age）——决定 L2 是「重设」还是「重置」。
+ *   1. 改法键（plan），L2 用它取手册。不是病因代码。
+ *   2. 置信度（confidence），决定 L2 给一篇还是两篇对照。
+ *   3. 时间画像（age），决定 L2 是「重设」还是「重置」。
  */
 const ARCHIVE_KEY = 'pay-diag-archive-v1';
 
@@ -540,9 +540,9 @@ function planOf(code) {
 
 /**
  * 置信度决定 L2 给几篇方案：
- *   high —— 第一名明显领先，且有多条强证据 → 给一篇
- *   mid  —— 前两名分差小 → 给两篇对照，让用户自己认
- *   low  —— 证据太弱或太散 → 不给方案，回到「先去确认」
+ *   high，第一名明显领先，且有多条强证据 → 给一篇
+ *   mid，前两名分差小 → 给两篇对照，让用户自己认
+ *   low，证据太弱或太散 → 不给方案，回到「先去确认」
  */
 function judgeConfidence(chains) {
   if (!chains.length) return 'none';
@@ -606,7 +606,7 @@ function archiveToParams(archive) {
   if (archive.pre) p.set('pre', archive.pre);
   if (archive.prePool) p.set('pool', archive.prePool);
   if (archive.teams.length) p.set('teams', archive.teams.join(','));
-  /* 他勾中的现象——L2 拿它当「你自己的证据」，「带走那一页」上要显示。
+  /* 他勾中的现象，L2 拿它当「你自己的证据」，「带走那一页」上要显示。
    * 只传 id 和严重度，正文留在规则库里。 */
   var syms = Object.keys(archive.answers || {})
     .filter(function (id) { return archive.answers[id] && archive.answers[id].sev > 0; });
@@ -668,15 +668,15 @@ function renderReport() {
   /* ---- 正常输出 ---- */
   var html = '';
   html += '<h2 class="h-sec">你勾了 ' + answered.length + ' 个现象</h2>';
-  html += '<p class="p-sec">下面按可能性排序。每一条都配了「怎么确认」——确认不了，就先别动手。</p>';
+  html += '<p class="p-sec">下面按可能性排序。每一条都配了「怎么确认」，确认不了，就先别动手。</p>';
 
   /* 一张主诊断（完整卡），其余降级成「需要排除的」一行。
-   * 三条并列会让用户以为有三个答案——而这是一份诊断书：
+   * 三条并列会让用户以为有三个答案，而这是一份诊断书：
    * 一个主诊断，附一份鉴别。 */
   html += renderChainCard(top[0], '最可能', 0);
 
   /* 两个提示放在主诊断后面。
-   * 原来它们在主诊断上面——等于把结论压到了注释后面。
+   * 原来它们在主诊断上面，等于把结论压到了注释后面。
    * 而且它们本来就是「关于这个诊断的补充」：一个说这套机制老了没，
    * 一个说前两条差别大不大。 */
   var dp = durProfile();
@@ -684,15 +684,15 @@ function renderReport() {
     html += '<div class="note-box warn">你勾的现象里，有 ' + dp.year +
             ' 条已经持续一年以上。<br>' +
             '<b>这不是新问题，是这套机制用了很久了。</b>' +
-            '老机制坏起来的方式和新机制不一样——它通常不是设计错了，是被套利了、被适应了、被当成应得的了。</div>';
+            '老机制坏起来的方式和新机制不一样，它通常不是设计错了，是被套利了、被适应了、被当成应得的了。</div>';
   } else if (dp && dp.freshRatio >= 0.5) {
     html += '<div class="note-box warn">大部分现象是最近才出现的。<br>' +
-            '<b>先想清楚最近改过什么</b>——换了人、调了目标、改了提成比例，往往比机制本身更值得查。</div>';
+            '<b>先想清楚最近改过什么</b>，换了人、调了目标、改了提成比例，往往比机制本身更值得查。</div>';
   }
 
   var conf = judgeConfidence(chains);
   if (conf === 'mid' && top.length > 1) {
-    html += '<div class="note-box warn">前两个的<b>差别不大</b>，先别急着认定是哪一个——' +
+    html += '<div class="note-box warn">前两个的<b>差别不大</b>，先别急着认定是哪一个，' +
             '先用下面「需要排除的」排一遍，排不掉再回来。</div>';
   }
 
@@ -719,8 +719,8 @@ function renderReport() {
 
   html += renderBoundary();
 
-  /* 返回修改——报告页唯一的返回入口。
-   * 必须写清「取消勾选会丢掉什么」，不然用户会以为答案还留着——
+  /* 返回修改，报告页唯一的返回入口。
+   * 必须写清「取消勾选会丢掉什么」，不然用户会以为答案还留着，
    * 那正是 startSurvey 里那个 bug 的成因。 */
   html += '<p class="foot-back">' +
             '<button class="btn-primary" onclick="goToTeams()">返回修改</button>' +
@@ -734,7 +734,7 @@ function renderReport() {
 }
 
 /* L1 的报告页是拼字符串的（没有统一的转义函数），
- * 但两说卡的「中间路径」那段用了 markdown 的 ** 加粗 —— 在这里把 ** 转成加粗。
+ * 但两说卡的「中间路径」那段用了 markdown 的 ** 加粗，在这里把 ** 转成加粗。
  * L2 那边是 esc() 一起做的。 */
 function mdBold(s) {
   return String(s == null ? '' : s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
@@ -769,7 +769,7 @@ function renderChainCard(ch, rankLabel, idx) {
       (TEAMS.filter(function (t) { return t.id === e.team; })[0] || {}).name || '';
     html += '<li>' + e.symptom.text +
             '<span style="color:#94A3B8;font-size:11.5px">（' + teamName + '）</span>';
-    // 症状级的排除条件：挂在症状下面，不塞进病因层——
+    // 症状级的排除条件：挂在症状下面，不塞进病因层，
     // 塞进病因层的话，所有命中这个病因的人都会看到一条跟自己无关的排除条件
     if (e.symptom.exclude) {
       html += '<div class="sym-exclude">' + e.symptom.exclude + '</div>';
@@ -792,12 +792,12 @@ function renderChainCard(ch, rankLabel, idx) {
   } else if (c.isPre) {
     html += '<div class="chain-block">' +
               '<div class="b-label">调整的思路</div>' +
-              '<div class="b-body">这一步不是调薪酬，是先把「好客户、好区域怎么分」的规则说清楚——它比奖金怎么算更早决定结果。</div>' +
+              '<div class="b-body">这一步不是调薪酬，是先把「好客户、好区域怎么分」的规则说清楚，它比奖金怎么算更早决定结果。</div>' +
             '</div>';
   }
 
   /* 两说卡：有些事没有唯一解，把两边的代价摆出来，不替你选。
-   * 按病因匹配，不按旋钮——旋钮一底下装着四种不同的毛病，按旋钮会误报。 */
+   * 按病因匹配，不按旋钮：旋钮一底下装着四种不同的毛病，按旋钮会误报。 */
   var tcs = TRADEOFFS.filter(function (t) { return t.causes.indexOf(c.code) >= 0; });
   tcs.forEach(function (t) {
     html += '<div class="chain-block tradeoff">' +
@@ -853,14 +853,14 @@ function renderExcludeCard(ch) {
 
 /* ==================== 通用判断（命中才展示） ====================
  * 六条都对，但对具体某个人来说可能有五条跟他没关系。
- * 全量展示会把报告花力气做出来的精准感冲掉——所以只挑相关的。
+ * 全量展示会把报告花力气做出来的精准感冲掉，所以只挑相关的。
  */
 function matchedPrinciples(chains) {
   var codes = {};
   chains.forEach(function (ch) {
     ch.nodes.forEach(function (n) { codes[n.code] = 1; });
   });
-  // 只按病因精确匹配，不按旋钮——旋钮太宽，会误报
+  // 只按病因精确匹配，不按旋钮，旋钮太宽，会误报
   return PRINCIPLES.filter(function (p) {
     return p.causes.some(function (x) { return codes[x]; });
   });
@@ -871,7 +871,7 @@ function renderPrinciples(chains) {
   if (!list.length) return '';
   var html = '<h2 class="h-sec h-sub">几条跟这次诊断相关的判断</h2>' +
              '<p class="p-sec">从真实案例里反复验证过、又被反例修正过的。' +
-             '不是通用大道理——只挑跟你这次勾的现象相关的。</p>';
+             '不是通用大道理，只挑跟你这次勾的现象相关的。</p>';
   html += '<div class="principle-card"><ul>';
   list.forEach(function (p) {
     html += '<li>' + p.text + '</li>';
@@ -885,11 +885,11 @@ function renderScriptCard(topChain) {
   var ev = topChain.evidence.slice(0, 3).map(function (e) { return '「' + e.symptom.text + '」'; });
   var bossLine = BOSS_LINES[topChain.code] || '';
   var text = '我观察到几个现象：' + ev.join('、') + '。' +
-             '它们都指向同一个可能——' + bossLine + '。' +
+             '它们都指向同一个可能，' + bossLine + '。' +
              '我想先确认一下，再决定要不要动。';
   // 复制出去的是纯文本，所以高亮只加在页面上，不加进 text
   var shown = '我观察到几个现象：' + ev.join('、') + '。<br>' +
-              '它们都指向同一个可能——<b>' + bossLine + '</b>。<br>' +
+              '它们都指向同一个可能，<b>' + bossLine + '</b>。<br>' +
               '我想先确认一下，再决定要不要动。';
 
   return '<div class="script-card">' +
@@ -926,7 +926,7 @@ function fallbackCopy(txt, cb) {
 
 /* ==================== 保存结果（不发链接、不收信息） ====================
  * 定位是纯工具，所以这里不收集任何联系方式。
- * 改成把这次的答案编进一个链接——用户自己存下来，随时能打开看同一份结果。
+ * 改成把这次的答案编进一个链接，用户自己存下来，随时能打开看同一份结果。
  * 这样 L1 从头到尾跟「你是谁」无关。
  */
 function buildResultLink() {
@@ -979,7 +979,7 @@ function renderCaptureCard() {
            '<div class="cap-desc">复制下面的链接存起来。以后想回来看、或者换台设备打开，都是这份结果。</div>' +
            '<div class="cap-link" id="result-link"></div>' +
            '<button class="btn-primary" onclick="copyResultLink()">复制链接</button>' +
-           '<div class="cap-note">不收集任何个人信息——链接里只有你勾过的现象。</div>' +
+           '<div class="cap-note">不收集任何个人信息，链接里只有你勾过的现象。</div>' +
          '</div>';
 }
 
@@ -1014,7 +1014,7 @@ function renderL2Entry() {
   var params = '';
   try { params = archiveToParams(); } catch (e) { params = ''; }
   return '<div class="l2-card">' +
-           '<div class="l2-hint">知道问题在哪之后——</div>' +
+           '<div class="l2-hint">知道问题在哪之后，</div>' +
            '<div class="l2-title">接下来改什么、按什么顺序</div>' +
            '<div class="l2-feats">' +
              '<span>每个改法的完整手册</span><span>·</span>' +
@@ -1057,7 +1057,7 @@ function renderPredictMode() {
     // 注意措辞：工具并不知道你「打算怎么分」，它只知道你看的是哪个团队。
     // 说成「预测」是吹牛，说成「对照清单」才是真的。
     html += '<h2 class="h-sec h-sub" style="margin-top:8px">这个团队最常见、也最先出现的几个信号</h2>' +
-            '<p class="p-sec">这不是针对你的诊断——你没勾任何现象，可能是真没问题，也可能是还没显影。' +
+            '<p class="p-sec">这不是针对你的诊断。你没勾任何现象，可能是真没问题，也可能是还没显影。' +
             '把这几条记下来，过几个月回头对一遍。<b>机制不是设下去当天就坏的，是几个月之后坏的。</b></p>' +
             '<ul class="warn-list">' +
               picks.map(function (s) { return '<li>' + s.text + '</li>'; }).join('') +
