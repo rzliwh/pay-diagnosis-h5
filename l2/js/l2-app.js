@@ -202,33 +202,34 @@ function renderIndex() {
   if (!el) return;
 
   var html = '';
-  html += '<h1 class="l2-h1">知道问题在哪之后</h1>';
-  html += '<p class="l2-sub">接下来是「改什么、按什么顺序、什么算改对了」</p>';
 
-  html += '<div class="l2-diag">' +
-            '<div class="l2-diag-label">你的诊断结果</div>' +
-            '<div class="l2-diag-body">' + esc(diagnosisSummary()) + '</div>' +
+  /* 头部：居中 + 图标。图标就是个 emoji，跟组织诊断那边一个做法。 */
+  html += '<div class="l2-head">' +
+            '<div class="l2-icon">📋</div>' +
+            '<h1 class="l2-h1">分钱机制 · 方案手册</h1>' +
+            '<p class="l2-sub">一份可以直接拿去开会的完整手册</p>' +
           '</div>';
 
-  if (plan) {
-    html += '<div class="l2-plan-preview">' +
-              '<div class="l2-plan-label">最可能需要动的地方</div>' +
-              '<div class="l2-plan-title">' + esc(plan.title) + '</div>' +
-              '<div class="l2-plan-brief">' + esc(plan.brief) + '</div>' +
-              '<div class="l2-plan-who">需要谁拍板：<b>' + esc(plan.decider || '—') + '</b></div>' +
-            '</div>';
-  }
+  /* 诊断卡：原来拆成三个框（你的诊断结果 / 最可能需要动的地方 / 提示框），
+   * 它们本来就是同一件事，你这次的诊断是什么。合成一张。 */
+  var symCount = symptomsFromParams().length;
+  html += '<div class="l2-diagcard">' +
+            '<div class="l2-diagcard-label">基于你的诊断</div>' +
+            '<div class="l2-diagcard-row"><b>最可能的病因：</b>' + esc(diagnosisSummary()) + '</div>' +
+            (plan ? '<div class="l2-diagcard-row"><b>最可能需要动的地方：</b>' + esc(plan.title) + '</div>' : '') +
+            (plan && plan.decider ? '<div class="l2-diagcard-row">这一步需要 <b>' + esc(plan.decider) + '</b> 拍板</div>' : '') +
+            (symCount ? '<div class="l2-diagcard-row">你勾中的 ' + symCount + ' 个现象，我们按可能性排了序</div>' : '') +
+          '</div>';
 
-  var note = confNote();
-  if (note) html += '<div class="l2-note-box">' + note + '</div>';
-
+  /* 价值清单：五条格式完全统一（勾 + 粗体标题 + 一行说明），不放在带底色的框里。
+   * 一屏里带底色的块最多一个，这里让位给下面的按钮。 */
   html += '<div class="l2-value">' +
-            '<div class="l2-value-title">你会拿到</div>' +
             '<ul>' +
-              '<li><b>这一条改法的完整手册</b>，从「要不要动」到「怎么退回来」</li>' +
-              '<li><b>先动哪个、后动哪个</b>，一次只拧一个，那先拧哪个就是判断</li>' +
-              '<li><b>什么条件算成功</b>，不是感觉好了，是可检查的判据</li>' +
-              '<li><b>前提条件</b>，不满足的话，方案就是空头支票</li>' +
+              '<li><b>这一条改法的完整手册</b>从「要不要动」到「怎么退回来」</li>' +
+              '<li><b>先动哪个、后动哪个</b>一次只拧一个，先拧哪个就是判断</li>' +
+              '<li><b>什么条件算成功</b>不是感觉好了，是可检查的判据</li>' +
+              '<li><b>前提条件</b>不满足的话，方案就是空头支票</li>' +
+              '<li><b>一页纸能带走的</b>可以直接拿去给公司管理层汇报</li>' +
             '</ul>' +
           '</div>';
 
@@ -331,8 +332,8 @@ function renderReport() {
               '<span class="l2-tag">' + (plan.knob ? '旋钮' + '一二三四五'[plan.knob - 1] : '前置条件') + '</span>' +
               '<span class="l2-tag">需要 ' + esc(plan.decider || '—') + ' 拍板</span>' +
             '</div>' +
-            '<div class="l2-who-note">这一步是<b>' + esc(plan.decider || '公司层') + '</b>拍板的。' +
-              '很多 HR 卡在这里，想在公司层的问题上做团队层的动作，推不动不是能力问题，是找错了人。</div>' +
+            '<div class="l2-who-note">这一步需要 <b>' + esc(plan.decider || '公司层') + '</b> 拍板。' +
+              '它是公司层的动作，在团队层使多大劲都不算数。</div>' +
           '</div>';
 
   /* ===== 2. 约束冲突，紧跟改法 =====

@@ -67,17 +67,42 @@ body {
 .l2-plan-who { font-size: 12px; color: #94A3B8; }
 .l2-plan-who b { color: #0F766E; }
 
-/* ---------- 价值列表 ---------- */
-.l2-value { background: #F8FAFC; border-radius: 14px; padding: 16px 18px; margin-bottom: 22px; }
-.l2-value-title { font-size: 13px; font-weight: 700; color: #334155; margin-bottom: 10px; }
+/* ---------- 价值列表（只有介绍页在用，可以放心改）---------- */
+.l2-value { margin-bottom: 22px; }
 .l2-value ul { list-style: none; }
 .l2-value li {
-  font-size: 13px; color: #475569; line-height: 1.7;
-  padding-left: 16px; position: relative; margin-bottom: 9px;
+  font-size: 13px; color: #475569; line-height: 1.65;
+  padding-left: 18px; position: relative; margin-bottom: 12px;
 }
 .l2-value li:last-child { margin-bottom: 0; }
-.l2-value li::before { content: '·'; position: absolute; left: 5px; color: #0F766E; font-weight: 700; }
-.l2-value b { color: #0F172A; }
+.l2-value li::before { content: '✓'; position: absolute; left: 0; color: #0F766E; font-weight: 700; }
+.l2-value b { display: block; color: #0F172A; }
+
+/* ---------- 介绍页头部：居中 ----------
+ * 别动 .l2-h1 / .l2-sub 本身：付款页、补问卷页、报告页也在用它们。
+ * 只加一层 .l2-head 包起来，作用范围限死在介绍页。 */
+.l2-head { text-align: center; margin-bottom: 22px; }
+.l2-head .l2-icon { font-size: 34px; line-height: 1; margin-bottom: 10px; }
+.l2-head .l2-sub { margin-bottom: 0; }
+
+/* ---------- 介绍页的诊断卡 ----------
+ * 原来拆成三个框（诊断结果 / 最可能需要动的地方 / 提示框），
+ * 它们本来就是同一件事「你这次的诊断是什么」，合成一张。
+ * 同样限死在介绍页：不动共用的 .l2-diag / .l2-note-box / .l2-plan-preview。 */
+.l2-diagcard {
+  border: 1px solid #E2E8F0;
+  border-radius: 14px;
+  padding: 16px 18px;
+  margin-bottom: 22px;
+}
+.l2-diagcard-label { font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 10px; }
+.l2-diagcard-row {
+  font-size: 13.5px; color: #475569; line-height: 1.7;
+  padding-left: 14px; position: relative; margin-bottom: 8px;
+}
+.l2-diagcard-row:last-child { margin-bottom: 0; }
+.l2-diagcard-row::before { content: '·'; position: absolute; left: 4px; color: #0F766E; font-weight: 700; }
+.l2-diagcard-row b { color: #0F172A; }
 
 /* ---------- 按钮 / 价格 ---------- */
 .l2-btn-primary {
