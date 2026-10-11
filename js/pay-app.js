@@ -692,7 +692,7 @@ function renderReport() {
 
   var conf = judgeConfidence(chains);
   if (conf === 'mid' && top.length > 1) {
-    html += '<div class="note-box">前两个的<b>差别不大</b>，先别急着认定是哪一个——' +
+    html += '<div class="note-box warn">前两个的<b>差别不大</b>，先别急着认定是哪一个——' +
             '先用下面「需要排除的」排一遍，排不掉再回来。</div>';
   }
 
