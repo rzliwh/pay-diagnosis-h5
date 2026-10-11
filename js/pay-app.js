@@ -195,7 +195,7 @@ function pickPre(el, key, optBoxId, nextBtnId) {
 function goToTeams() {
   /* 这个函数有两个入口：
    *   ① 前置问2 的「下一步」（正常往前走，index.html）
-   *   ② 报告页的「回去改选团队」（往回走）
+   *   ② 报告页的「返回修改」（往回走）
    * 埋点打在这儿，往回走时会重算一次 pre-done —— 分母略微偏大，
    * 但比"往前走的正常路径不打点"要好（那个会让分母偏小）。 */
   track('pre-done');
@@ -716,7 +716,7 @@ function renderReport() {
 
   html += renderBoundary();
 
-  /* 回去改选团队——报告页唯一的返回入口。
+  /* 返回修改——报告页唯一的返回入口。
    * 必须写清「取消勾选会丢掉什么」，不然用户会以为答案还留着——
    * 那正是 startSurvey 里那个 bug 的成因。 */
   html += '<p class="foot-back">' +
