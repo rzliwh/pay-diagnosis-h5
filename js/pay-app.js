@@ -761,8 +761,22 @@ function renderReport() {
   }
 
   html += renderPrinciples(top);
+  /* ===== 这一段：把你的诊断带走 =====
+   * 复制话术 → 保存链接 → 返回修改，三件都是「收尾」，放一起。
+   * 返回修改用次要按钮样式（btn-ghost）：它是往回走，
+   * 不该跟下一段的付费卡抢重量。 */
   html += renderScriptCard(top[0]);
   html += renderCaptureCard();
+
+  /* 返回修改，报告页唯一的返回入口。
+   * 必须写清「取消勾选会丢掉什么」，不然用户会以为答案还留着，
+   * 那正是 startSurvey 里那个 bug 的成因。 */
+  html += '<p class="foot-back">' +
+            '<button class="btn-ghost" onclick="goToTeams()">返回修改</button>' +
+            '<span>取消勾选的团队，它那几屏的答案会一起清掉；仍然选中的，答案留着。</span>' +
+          '</p>';
+
+  /* ===== 下一段：接下来怎么办 ===== */
   html += renderL2Entry();
 
   /* 实测模式：把每个团队的用时列出来。
@@ -778,14 +792,6 @@ function renderReport() {
   }
 
   html += renderBoundary();
-
-  /* 返回修改，报告页唯一的返回入口。
-   * 必须写清「取消勾选会丢掉什么」，不然用户会以为答案还留着，
-   * 那正是 startSurvey 里那个 bug 的成因。 */
-  html += '<p class="foot-back">' +
-            '<button class="btn-primary" onclick="goToTeams()">返回修改</button>' +
-            '<span>取消勾选的团队，它那几屏的答案会一起清掉；仍然选中的，答案留着。</span>' +
-          '</p>';
 
   body.innerHTML = html;
   fillResultLink();
@@ -1082,8 +1088,8 @@ function renderL2Entry() {
              '<span>什么条件算成功</span><span>·</span>' +
              '<span>前提条件与回退</span>' +
            '</div>' +
-           '<button class="l2-btn" onclick="goToL2()">看看该怎么改 →</button>' +
            '<p class="l2-price">¥199</p>' +
+           '<button class="l2-btn" onclick="goToL2()">看看该怎么改 →</button>' +
            '<div class="l2-note">不用重填，你的诊断结果会带过去</div>' +
          '</div>';
 }
