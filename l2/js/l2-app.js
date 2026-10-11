@@ -52,7 +52,7 @@ function symptomsFromParams() {
   return raw.split(',').filter(Boolean).map(function (pair) {
     var parts = pair.split(':');
     var s = SYMPTOMS.filter(function (x) { return x.id === parts[0]; })[0];
-    return s ? { text: s.text, sev: parseInt(parts[1], 10) || 1 } : null;
+    return s ? { text: s.text, sev: parseInt(parts[1], 10) || 1, cause: s.cause } : null;
   }).filter(Boolean);
 }
 
@@ -310,45 +310,20 @@ function renderReport() {
   var manual = (typeof MANUALS !== 'undefined' && planId) ? MANUALS[planId] : null;
 
   var html = '';
-  html += '<h1 class="l2-h1">你的方案</h1>';
 
-  /* 诊断摘要 */
-  html += '<div class="l2-diag">' +
-            '<div class="l2-diag-label">诊断结果</div>' +
-            '<div class="l2-diag-body">' + esc(diagnosisSummary()) + '</div>' +
-          '</div>';
-  var note = confNote();
-  if (note) html += '<div class="l2-note-box">' + note + '</div>';
-
-  /* 你勾中的现象——他自己的证据，不是通用清单 */
-  var syms = symptomsFromParams();
-  if (syms.length) {
-    html += '<div class="l2-block"><div class="l2-block-label">你勾中的现象（' + syms.length + ' 条）</div>' +
-            '<ul class="l2-sym">';
-    syms.forEach(function (s) {
-      html += '<li>' + esc(s.text) +
-              (s.sev >= 2 ? '<span class="l2-sym-sev">反复发生</span>' : '') + '</li>';
-    });
-    html += '</ul><div class="l2-block-foot">这些是你自己勾的，不是排行榜上的通用毛病。</div></div>';
-  }
-
-  /* 你的约束 */
-  html += '<div class="l2-answers"><div class="l2-answers-title">你的约束条件</div>';
-  L2_QUESTIONS.forEach(function (q) {
-    var v = p.get('a_' + q.id);
-    var opt = q.options.filter(function (o) { return o.value === v; })[0];
-    html += '<div class="l2-answer-row"><span>' + q.title + '</span><b>' +
-            (opt ? opt.label : '未答') + '</b></div>';
-  });
-  html += '</div>';
-
-  /* 改法 */
+  /* 收不到改法就直接退出——先判，因为它决定后面有没有内容 */
   if (!plan) {
-    html += '<div class="l2-note-box">没有收到改法信息——请从诊断结果页的入口重新进来。</div>';
+    html += '<h1 class="l2-h1">你的方案</h1>' +
+            '<div class="l2-note-box">没有收到改法信息——请从诊断结果页的入口重新进来。</div>';
     el.innerHTML = html;
     return;
   }
 
+  html += '<h1 class="l2-h1">你的方案</h1>';
+
+  /* ===== 1. 该动的地方（提到最前面）=====
+   * 用户付了钱，最该先看到的就是这个。
+   * 诊断结果、你勾中的现象、约束条件那些，都是"凭什么说是它"——排在它后面。 */
   html += '<div class="l2-plan-head">' +
             '<div class="l2-plan-label">该动的地方</div>' +
             '<h2 class="l2-plan-h2">' + esc(plan.title) + '</h2>' +
@@ -361,7 +336,8 @@ function renderReport() {
               '很多 HR 卡在这里——想在公司层的问题上做团队层的动作，推不动不是能力问题，是找错了人。</div>' +
           '</div>';
 
-  /* 约束冲突——放在手册之前。读完了手册才看到警告，等于白读。 */
+  /* ===== 2. 约束冲突——紧跟改法 =====
+   * 它说的是"这个改法跟你打架"，所以必须挨着改法，不能等到手册后面。 */
   var warns = conflictWarnings(planId, plan, p);
   if (warns.length) {
     html += '<div class="l2-conflict">' +
@@ -371,6 +347,60 @@ function renderReport() {
     });
     html += '</div>';
   }
+
+  /* ===== 3. 为什么是它（诊断结果 → 你勾中的现象 → 你的约束）=====
+   * 三块都是"凭什么说是它"，是证据，不是结论——排在结论后面。 */
+  html += '<div class="l2-why-label">为什么是它</div>';
+
+  /* 诊断摘要 */
+  html += '<div class="l2-diag">' +
+            '<div class="l2-diag-label">诊断结果</div>' +
+            '<div class="l2-diag-body">' + esc(diagnosisSummary()) + '</div>' +
+          '</div>';
+  var note = confNote();
+  if (note) html += '<div class="l2-note-box">' + note + '</div>';
+
+  /* 你勾中的现象——他自己的证据，不是通用清单。
+   *
+   * 默认只显示「指向这次诊断」的那几条，其余折叠。
+   * 为什么：用户付 199，翻了两屏看到的却是他自己刚勾过的东西，
+   * 而最该看到的答案被挤到后面去了。指向本次诊断的那几条最有力——
+   * 它们直接回答了"凭什么说是这个病"。 */
+  var syms = symptomsFromParams();
+  if (syms.length) {
+    var hit = {};
+    causesFromParams().forEach(function (c) { hit[c.code] = 1; });
+    var keyOnes = syms.filter(function (s) { return hit[s.cause]; });
+    if (!keyOnes.length) keyOnes = syms.slice(0, 5);   // 一条都没指上时，至少给 5 条
+    var rest = syms.filter(function (s) { return keyOnes.indexOf(s) < 0; });
+
+    function symLi(s, hidden) {
+      return '<li' + (hidden ? ' class="sym-rest" style="display:none"' : '') + '>' + esc(s.text) +
+             (s.sev >= 2 ? '<span class="l2-sym-sev">反复发生</span>' : '') + '</li>';
+    }
+    html += '<div class="l2-block"><div class="l2-block-label">你勾中的现象' +
+            '（' + syms.length + ' 条，指向这次诊断的 ' + keyOnes.length + ' 条）</div>' +
+            '<ul class="l2-sym" id="l2-sym-list">';
+    keyOnes.forEach(function (s) { html += symLi(s, false); });
+    rest.forEach(function (s) { html += symLi(s, true); });
+    html += '</ul>';
+    if (rest.length) {
+      html += '<button class="l2-sym-more" id="l2-sym-more" onclick="toggleSyms()">' +
+              '展开其余 ' + rest.length + ' 条</button>';
+    }
+    html += '<div class="l2-block-foot">这些是你自己勾的，不是排行榜上的通用毛病。' +
+            '上面的 ' + keyOnes.length + ' 条指向这次诊断。</div></div>';
+  }
+
+  /* 你的约束 */
+  html += '<div class="l2-answers"><div class="l2-answers-title">你的约束条件</div>';
+  L2_QUESTIONS.forEach(function (q) {
+    var v = p.get('a_' + q.id);
+    var opt = q.options.filter(function (o) { return o.value === v; })[0];
+    html += '<div class="l2-answer-row"><span>' + q.title + '</span><b>' +
+            (opt ? opt.label : '未答') + '</b></div>';
+  });
+  html += '</div>';
 
   /* 前提条件 */
   if (plan.preconditions && plan.preconditions.length) {
@@ -458,6 +488,20 @@ function renderReport() {
           '</ul></div>';
 
   el.innerHTML = html;
+}
+
+/* 展开／收起「其余的现象」 */
+function toggleSyms() {
+  var list = document.getElementById('l2-sym-list');
+  var btn = document.getElementById('l2-sym-more');
+  if (!list || !btn) return;
+  var hidden = list.querySelectorAll('.sym-rest');
+  if (!hidden.length) return;
+  var showing = hidden[0].style.display !== 'none';
+  Array.prototype.forEach.call(hidden, function (li) {
+    li.style.display = showing ? 'none' : 'list-item';
+  });
+  btn.textContent = showing ? ('展开其余 ' + hidden.length + ' 条') : '收起';
 }
 
 /* 把「带走这一页」复制成纯文本——要能直接贴进微信、邮件、PPT */
