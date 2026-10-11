@@ -93,7 +93,6 @@ body {
 }
 .l2-btn-primary:active { transform: scale(0.98); }
 .l2-btn-primary:disabled { background: #94A3B8; box-shadow: none; cursor: not-allowed; }
-.l2-price { text-align: center; font-size: 22px; font-weight: 800; color: #0F766E; margin-top: 12px; letter-spacing: 1px; }
 .l2-foot { font-size: 11.5px; color: #CBD5E1; text-align: center; margin-top: 22px; line-height: 1.7; }
 
 /* ---------- 支付页 ---------- */

@@ -233,7 +233,6 @@ function renderIndex() {
           '</div>';
 
   html += '<button class="l2-btn-primary" onclick="go(\'pay.html\')">去付款￥199→</button>';
-  html += '<p class="l2-price">¥199</p>';
   el.innerHTML = html;
 }
 
