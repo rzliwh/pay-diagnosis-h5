@@ -31,9 +31,6 @@
 
   <!-- 统计：ID 在 js/analytics.js 里改一处，五个页面一起生效 -->
   <script src="js/analytics.js"></script>
-
-  <!-- 实测用的计时条：带 ?observe=1 才生效，不带就什么都不做 -->
-  <script src="js/observe.js"></script>
 </head>
 <body>
   <div class="app-container" id="app">
@@ -147,6 +144,11 @@
   </div>
 
   <script src="js/pay-data.js"></script>
+
+  <!-- 实测用的计时条：带 ?observe=1 才生效，不带就什么都不做。
+       必须放 </body> 前。它要往 document.body 里插元素，放在 <head> 里 body 还不存在，会直接抛错
+       （2026-10-11 修：之前就在 <head>，所以这条计时条从来没显示出来过）。 -->
+  <script src="js/observe.js"></script>
   <script src="js/pay-app.js"></script>
 </body>
 </html>
