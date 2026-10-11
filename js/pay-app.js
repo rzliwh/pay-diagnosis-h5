@@ -720,7 +720,7 @@ function renderReport() {
    * 必须写清「取消勾选会丢掉什么」，不然用户会以为答案还留着——
    * 那正是 startSurvey 里那个 bug 的成因。 */
   html += '<p class="foot-back">' +
-            '<a onclick="goToTeams()">回去改选团队</a>' +
+            '<a onclick="goToTeams()">返回修改</a>' +
             '<span>取消勾选的团队，它那几屏的答案会一起清掉；仍然选中的，答案留着。</span>' +
           '</p>';
 
