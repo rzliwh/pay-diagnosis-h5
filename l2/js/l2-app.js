@@ -449,7 +449,6 @@ function renderReport() {
     });
     html += '</div>' +
             '<button class="l2-btn-primary" style="margin-top:12px" onclick="copyOnePager()">复制这一页</button>' +
-            '<div class="l2-block-foot">给老板、给合伙人、贴进你的汇报里——这一页是拿得出手的。</div>' +
             '</div>';
   }
 
@@ -458,7 +457,6 @@ function renderReport() {
           L2_BOUNDARY.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') +
           '</ul></div>';
 
-  html += '<p class="l2-foot">方案是待验证的，不是结论。上了之后对照信号看变化。</p>';
   el.innerHTML = html;
 }
 

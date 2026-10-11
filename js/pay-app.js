@@ -720,7 +720,7 @@ function renderReport() {
    * 必须写清「取消勾选会丢掉什么」，不然用户会以为答案还留着——
    * 那正是 startSurvey 里那个 bug 的成因。 */
   html += '<p class="foot-back">' +
-            '<a onclick="goToTeams()">返回修改</a>' +
+            '<button class="btn-primary" onclick="goToTeams()">返回修改</button>' +
             '<span>取消勾选的团队，它那几屏的答案会一起清掉；仍然选中的，答案留着。</span>' +
           '</p>';
 
@@ -1034,8 +1034,7 @@ function renderBoundary() {
   return '<div class="boundary-card">' +
            '<div class="bd-title">这个工具不做什么</div>' +
            '<ul>' + BOUNDARY.map(function (b) { return '<li>' + b + '</li>'; }).join('') + '</ul>' +
-         '</div>' +
-         '<p class="footer-note">结论是待确认的假设，不是判决。<br>动手之前，先确认。</p>';
+         '</div>';
 }
 
 /* ==================== 预测模式（一条都没勾） ==================== */
