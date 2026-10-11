@@ -1095,7 +1095,7 @@ function goToL2() {
 /* ==================== 边界说明 ==================== */
 function renderBoundary() {
   return '<div class="boundary-card">' +
-           '<div class="bd-title">使用之前的几点澄清</div>' +
+           '<div class="bd-title">这个工具能给什么、不能给什么</div>' +
            '<ul>' + BOUNDARY.map(function (b) { return '<li>' + b + '</li>'; }).join('') + '</ul>' +
          '</div>';
 }

@@ -243,7 +243,7 @@ function renderPay() {
   if (!el) return;
   var plan = planOfId(params().get('plan'));
   el.innerHTML =
-    '<h1 class="l2-h1">订单</h1>' +
+    '<h1 class="l2-h1">确认订单</h1>' +
     '<div class="l2-order">' +
       '<div class="l2-order-row"><span>分钱机制 · 方案手册</span><b>¥199</b></div>' +
       (plan ? '<div class="l2-order-sub">' + esc(plan.title) + '</div>' : '') +
@@ -256,7 +256,7 @@ function renderPay() {
     '</div>' +
     '<p class="l2-qr-hint">扫码支付 ¥199，付完点下面的按钮</p>' +
     '<button class="l2-btn-primary" onclick="go(\'survey.html\')">我已付款，继续 →</button>' +
-    '<p class="l2-foot">付款这一步不收集任何个人信息</p>';
+    '<p class="l2-foot">如有疑问请联系微信：LaoLee01</p>';
 }
 
 /* ==================== 三、补问卷 ==================== */
@@ -483,7 +483,7 @@ function renderReport() {
   }
 
   /* 边界 */
-  html += '<div class="l2-boundary"><div class="l2-boundary-title">使用之前的几点澄清</div><ul>' +
+  html += '<div class="l2-boundary"><div class="l2-boundary-title">这个工具能给什么、不能给什么</div><ul>' +
           L2_BOUNDARY.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') +
           '</ul></div>';
 
