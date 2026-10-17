@@ -1,0 +1,222 @@
+/**
+ * guide.css，分钱从 0 到 1 入门页
+ * 跟诊断工具同一套配色（深青 = 临床感），但这一页是「读」，不是「做」。
+ * 纯静态，不依赖工具的任何样式或脚本。
+ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: system-ui, -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background: #F8FAFC;
+  color: #1E293B;
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+
+.guide-container {
+  max-width: 620px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: #ffffff;
+  padding: 28px 22px 56px;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.05);
+}
+
+/* ---------- 头部 ---------- */
+.guide-back {
+  display: inline-block;
+  font-size: 12.5px;
+  color: #94A3B8;
+  text-decoration: none;
+  margin-bottom: 22px;
+}
+.guide-head h1 {
+  font-size: 28px; font-weight: 800; color: #0F172A;
+  line-height: 1.35; margin-bottom: 8px;
+}
+.guide-sub {
+  font-size: 14px; color: #64748B; margin-bottom: 26px;
+}
+
+/* ---------- 开篇 ---------- */
+.guide-intro {
+  border-left: 3px solid #0F766E;
+  background: #F0FDFA;
+  border-radius: 0 12px 12px 0;
+  padding: 16px 18px;
+  margin-bottom: 26px;
+}
+.guide-intro p {
+  font-size: 14.5px; color: #115E59; line-height: 1.9;
+  margin-bottom: 12px;
+}
+.guide-intro p:last-child { margin-bottom: 0; }
+.guide-intro b { color: #0F172A; }
+
+/* ---------- 第 0 步 ---------- */
+.step-zero {
+  border: 1px solid #E2E8F0;
+  border-left: 4px solid #0F766E;
+  border-radius: 0 14px 14px 0;
+  background: #ffffff;
+  padding: 16px 18px;
+  margin-bottom: 26px;
+}
+.step-zero-label {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.8px;
+  color: #0F766E; margin-bottom: 8px;
+}
+.step-zero p {
+  font-size: 14.5px; color: #334155; line-height: 1.85;
+  margin-bottom: 10px;
+}
+.step-zero p:last-child { margin-bottom: 0; }
+.step-zero b { color: #0F172A; }
+
+/* ---------- 落点句（每节一句，单独一行） ---------- */
+.takeaway {
+  font-size: 16px; font-weight: 800; color: #0F172A;
+  line-height: 1.7;
+  background: #F0FDFA;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin: 18px 0;
+}
+
+/* ---------- 什么时候不用纠结 ---------- */
+.not-apply {
+  font-size: 13px; color: #64748B; line-height: 1.8;
+  border-top: 1px dashed #E2E8F0;
+  padding-top: 14px; margin-top: 16px;
+}
+.not-apply b { color: #475569; }
+
+/* ---------- 目录 ---------- */
+.guide-toc {
+  display: flex; flex-direction: column; gap: 2px;
+  border: 1px solid #E2E8F0;
+  border-radius: 14px;
+  padding: 12px 16px;
+  margin-bottom: 34px;
+}
+.guide-toc a {
+  font-size: 13.5px; color: #475569; text-decoration: none;
+  padding: 7px 0; border-bottom: 1px solid #F1F5F9;
+}
+.guide-toc a:last-child { border-bottom: none; }
+.guide-toc a:hover { color: #0F766E; }
+
+/* ---------- 每一节 ---------- */
+.decision {
+  margin-bottom: 42px;
+  padding-top: 6px;
+}
+.decision h2 {
+  font-size: 21px; font-weight: 800; color: #0F172A;
+  padding-bottom: 10px; margin-bottom: 18px;
+  border-bottom: 2px solid #0F766E;
+}
+.decision h3 {
+  font-size: 12px; font-weight: 700; letter-spacing: 0.6px;
+  color: #0F766E; margin: 22px 0 10px;
+}
+.decision p {
+  font-size: 14.5px; color: #334155; line-height: 1.9;
+  margin-bottom: 12px;
+}
+.decision ul, .decision ol {
+  padding-left: 20px; margin-bottom: 14px;
+}
+.decision li {
+  font-size: 14px; color: #475569; line-height: 1.85;
+  margin-bottom: 8px;
+}
+.decision li b { color: #0F172A; }
+.pending { color: #94A3B8; font-size: 13px; }
+
+/* ---------- 判断点（先问一句） ---------- */
+.pivot {
+  border: 1px solid #E2E8F0;
+  border-top: 3px solid #0F766E;
+  border-radius: 14px;
+  padding: 15px 17px;
+  margin: 14px 0 18px;
+}
+.pivot p {
+  font-size: 13.5px; color: #475569; line-height: 1.8;
+  margin-bottom: 10px;
+}
+.pivot ul { padding-left: 18px; margin-bottom: 8px; }
+.pivot li {
+  font-size: 13.5px; color: #475569; line-height: 1.8;
+  margin-bottom: 8px;
+}
+.pivot li b { color: #0F172A; }
+.pivot .pivot-note {
+  font-size: 12.5px; color: #94A3B8;
+  margin-bottom: 0;
+}
+
+/* ---------- 听起来对，其实错 ---------- */
+.trap {
+  background: #FFFBEB;
+  border-left: 3px solid #F59E0B;
+  border-radius: 0 12px 12px 0;
+  padding: 13px 16px;
+  font-size: 13.5px; color: #92400E; line-height: 1.85;
+  margin: 16px 0 6px;
+}
+.trap b { color: #78350F; }
+
+/* ---------- 两扇门 ---------- */
+.doors {
+  display: flex; flex-direction: column; gap: 12px;
+  margin-top: 12px;
+}
+.door {
+  border: 1px solid #E2E8F0;
+  border-radius: 14px;
+  padding: 15px 17px;
+}
+.door-title {
+  font-size: 14px; font-weight: 700; color: #0F172A;
+  margin-bottom: 8px;
+}
+.door p { font-size: 13.5px; color: #475569; line-height: 1.8; margin-bottom: 8px; }
+.door p:last-child { margin-bottom: 0; }
+.door ol { padding-left: 18px; margin-bottom: 8px; }
+.door ol li { font-size: 13.5px; color: #475569; line-height: 1.8; margin-bottom: 6px; }
+.door-note { font-size: 12.5px; color: #94A3B8; }
+
+.cta {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, #0F766E, #0D9488);
+  color: #fff; font-size: 13.5px; font-weight: 700;
+  text-decoration: none; border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(15, 118, 110, 0.22);
+}
+.cta:active { transform: scale(0.98); }
+
+/* ---------- 页脚 ---------- */
+.guide-foot {
+  margin-top: 16px;
+  padding-top: 26px;
+  border-top: 1px solid #E2E8F0;
+  text-align: center;
+}
+.guide-foot a {
+  display: inline-block;
+  font-size: 14px; font-weight: 700; color: #0F766E;
+  text-decoration: none; margin-bottom: 8px;
+}
+.guide-foot p { font-size: 12px; color: #94A3B8; line-height: 1.7; }
+
+/* ---------- 移动端 ---------- */
+@media (max-width: 480px) {
+  .guide-container { box-shadow: none; padding: 20px 16px 40px; }
+  .guide-head h1 { font-size: 24px; }
+  .decision h2 { font-size: 19px; }
+}

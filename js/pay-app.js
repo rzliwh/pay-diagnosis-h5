@@ -1144,6 +1144,11 @@ function renderPredictMode() {
               picks.map(function (s) { return '<li>' + s.text + '</li>'; }).join('') +
             '</ul>';
   }
+
+  /* 反向链接：这一支的人一条都没勾，最需要先补背景知识。
+   * 只加链接，不碰任何诊断逻辑。 */
+  html += '<div class="guide-link">想先搞懂分钱是怎么回事？' +
+            '<a href="guide/">看这个入门页 →</a></div>';
   html += renderBoundary();
   return html;
 }
@@ -1162,6 +1167,8 @@ function renderNotEnough() {
            '2. 找两个不同团队的人各聊 10 分钟，问他们「奖金是怎么算出来的」<br>' +
            '3. 把现在这套机制是什么时候定的、当时是按谁的情况定的，写下来' +
          '</div>' +
+         '<div class="guide-link">想先搞懂分钱是怎么回事？' +
+           '<a href="guide/">看这个入门页 →</a></div>' +
          renderBoundary();
 }
 
