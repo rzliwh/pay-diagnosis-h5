@@ -24,13 +24,6 @@ body {
 }
 
 /* ---------- 头部 ---------- */
-.guide-back {
-  display: inline-block;
-  font-size: 12.5px;
-  color: #94A3B8;
-  text-decoration: none;
-  margin-bottom: 22px;
-}
 .guide-head h1 {
   font-size: 28px; font-weight: 800; color: #0F172A;
   line-height: 1.35; margin-bottom: 8px;
