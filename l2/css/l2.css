@@ -49,9 +49,23 @@ body {
 
 /* 打印时：藏掉导航和所有按钮，折叠的现象全部展开，让存下来的"整页"是完整的 */
 @media print {
-  .l2-back, .l2-print, button { display: none !important; }
+  .l2-back, .l2-print, button, .l2-toast { display: none !important; }
   .l2-container { box-shadow: none; max-width: none; padding: 0; }
   .sym-rest { display: list-item !important; }
+}
+
+/* 保存 / 收藏的提示条 */
+.l2-toast {
+  position: fixed;
+  left: 16px; right: 16px; bottom: 24px;
+  z-index: 9999;
+  max-width: 440px; margin: 0 auto;
+  background: rgba(15, 23, 42, 0.92);
+  color: #fff;
+  font-size: 13px; line-height: 1.7;
+  padding: 12px 15px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
 }
 
 .l2-h1 { font-size: 22px; font-weight: 800; color: #0F172A; line-height: 1.4; margin-bottom: 8px; }

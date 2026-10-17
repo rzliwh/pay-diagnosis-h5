@@ -480,8 +480,8 @@ function renderReport() {
             '</div>';
   }
 
-  /* 整页保存：上面的「复制这一页」只能带走那几行，整页要能存成文件。 */
-  html += '<button class="l2-print l2-print-wide" onclick="window.print()">把整页保存成文件</button>';
+  /* 收藏这一页：方案页的答案本来就在网址里，复制链接就等于存下这份结果。 */
+  html += '<button class="l2-print l2-print-wide" onclick="savePageLink()">收藏这一页</button>';
 
   /* 边界 */
   html += '<div class="l2-boundary"><div class="l2-boundary-title">这个工具能给什么、不能给什么</div><ul>' +
@@ -519,11 +519,7 @@ function copyOnePager() {
     btn.textContent = '已复制 ✓';
     setTimeout(function () { btn.textContent = old; }, 1600);
   };
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(txt).then(done).catch(done);
-  } else {
-    done();
-  }
+  copyText(txt, done);
 }
 
 /** 按「诊断置信度 + 四个偏好答案」挑出适用的顺序建议 */
@@ -537,6 +533,66 @@ function orderAdvice(p) {
   if (win === 'fast') out.push(ORDER_RULES[3].text);
   out.push(ORDER_RULES[4].text);
   return out;
+}
+
+/* ==================== 保存 / 收藏 ====================
+ * 打印：桌面和系统浏览器走 window.print()。
+ * 微信内置浏览器和 UC 不支持，点了只给提示，别让用户以为按钮坏了。
+ * 收藏：方案页的答案本来就在网址里，复制当前链接就等于存下这份结果。
+ */
+function savePage() {
+  var ua = navigator.userAgent;
+  if (/MicroMessenger/i.test(ua)) {
+    showToast('微信里不能直接保存文件。点右上角「…」，选「在浏览器中打开」，再点这个按钮。');
+    return;
+  }
+  if (/UCBrowser|UCWEB/i.test(ua)) {
+    showToast('UC 的阅读模式会打乱排版。请用 Safari 或系统浏览器打开，再点这个按钮。');
+    return;
+  }
+  window.print();
+}
+
+function savePageLink() {
+  var link = location.href.split('#')[0];
+  var done = function () {
+    if (/MicroMessenger/i.test(navigator.userAgent)) {
+      showToast('链接已复制。点右上角「…」，选「收藏」，下次打开还是这份结果。');
+    } else {
+      showToast('链接已复制。存下来，下次打开还是这份结果，换设备也能用。');
+    }
+  };
+  copyText(link, done);
+}
+
+function copyText(txt, done) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(txt).then(done).catch(function () { fallbackCopy(txt, done); });
+  } else {
+    fallbackCopy(txt, done);
+  }
+}
+
+function fallbackCopy(txt, cb) {
+  var ta = document.createElement('textarea');
+  ta.value = txt;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); cb(); } catch (e) {}
+  document.body.removeChild(ta);
+}
+
+function showToast(text) {
+  var old = document.getElementById('l2-toast');
+  if (old) old.remove();
+  var el = document.createElement('div');
+  el.id = 'l2-toast';
+  el.className = 'l2-toast';
+  el.textContent = text;
+  document.body.appendChild(el);
+  setTimeout(function () { if (el.parentNode) el.remove(); }, 6000);
 }
 
 /* ==================== 启动 ==================== */
