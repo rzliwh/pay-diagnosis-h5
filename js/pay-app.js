@@ -103,8 +103,8 @@ function validateRulebook() {
  *
  * 包一层是为了防 analytics.js 没加载时把主流程带崩。
  */
-function track(step) {
-  if (typeof trackStep === 'function') trackStep(step);
+function track(step, label) {
+  if (typeof trackStep === 'function') trackStep(step, label);
 }
 
 /* ==================== 页面切换 ==================== */
@@ -718,6 +718,11 @@ function renderReport() {
   var chains = buildChains(scores);
   var top = chains.slice(0, 3);
 
+  /* 命中分布：只报「第一名是哪个病」。
+   * 用来回答「是不是所有人都只命中那三个」——那才是产品退化的信号。
+   * 报的 code 跟选方案用的是同一个，口径一致。 */
+  if (top.length) track('top1', top[0].code);
+
   /* ---- 分支二：证据不足 ---- */
   if (!top.length || top[0].score < 3) {
     body.innerHTML = renderNotEnough();
@@ -859,6 +864,16 @@ function renderChainCard(ch, rankLabel, idx) {
     html += '<div class="chain-block">' +
               '<div class="b-label">调整的思路</div>' +
               '<div class="b-body">这一步不是调薪酬，是先把「好客户、好区域怎么分」的规则说清楚，它比奖金怎么算更早决定结果。</div>' +
+            '</div>';
+  }
+
+  /* 动手之前先确认：复用 L2 里每条改法本来就有的一条前提条件。
+   * 免费看到"该动哪儿"，也该看到"动手前得先确认什么"。 */
+  var plan = planOf(c.code);
+  if (plan && plan.preconditions && plan.preconditions.length) {
+    html += '<div class="chain-block">' +
+              '<div class="b-label">动手之前先确认</div>' +
+              '<div class="b-body">' + esc(plan.preconditions[0]) + '</div>' +
             '</div>';
   }
 
@@ -1042,7 +1057,7 @@ function restoreFromLink() {
 function renderCaptureCard() {
   return '<div class="capture-card">' +
            '<div class="cap-title">保存这份结果</div>' +
-           '<div class="cap-desc">复制下面的链接存起来。以后想回来看、或者换台设备打开，都是这份结果。</div>' +
+           '<div class="cap-desc">复制下面的链接存起来。以后想回来再看、或者换台设备打开，都是这份结果。分钱机制会自己老化，过几个月值得回来重做一遍。</div>' +
            '<div class="cap-link" id="result-link"></div>' +
            '<button class="btn-primary" onclick="copyResultLink()">复制链接</button>' +
            '<div class="cap-note">不收集任何个人信息，链接里只有你勾过的现象。</div>' +

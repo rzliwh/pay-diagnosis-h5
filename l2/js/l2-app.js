@@ -388,8 +388,7 @@ function renderReport() {
       html += '<button class="l2-sym-more" id="l2-sym-more" onclick="toggleSyms()">' +
               '展开其余 ' + rest.length + ' 条</button>';
     }
-    html += '<div class="l2-block-foot">这些是你自己勾的，不是排行榜上的通用毛病。' +
-            '上面的 ' + keyOnes.length + ' 条指向这次诊断。</div></div>';
+    html += '</div>';
   }
 
   /* 你的约束 */
@@ -416,7 +415,6 @@ function renderReport() {
     html += '<div class="l2-block">' +
               '<div class="l2-block-label">多久能看出效果</div>' +
               '<div class="l2-effect">' + esc(plan.effectWindow) + '</div>' +
-              '<div class="l2-block-foot">这是「改完多久能知道有没有用」。跟病因卡上那个「大概什么时候能验证」是两个钟，病多久显形，跟药多久见效，不是一回事。</div>' +
             '</div>';
   }
 
@@ -481,6 +479,9 @@ function renderReport() {
             '<button class="l2-btn-primary" style="margin-top:12px" onclick="copyOnePager()">复制这一页</button>' +
             '</div>';
   }
+
+  /* 整页保存：上面的「复制这一页」只能带走那几行，整页要能存成文件。 */
+  html += '<button class="l2-print l2-print-wide" onclick="window.print()">把整页保存成文件</button>';
 
   /* 边界 */
   html += '<div class="l2-boundary"><div class="l2-boundary-title">这个工具能给什么、不能给什么</div><ul>' +

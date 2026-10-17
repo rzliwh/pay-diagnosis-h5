@@ -30,6 +30,30 @@ body {
   margin-bottom: 20px;
 }
 
+/* ---------- 保存成文件（调用浏览器打印 / 存 PDF） ---------- */
+.l2-topbar {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 20px;
+}
+.l2-topbar .l2-back { margin-bottom: 0; }
+.l2-print {
+  border: 1px solid #CBD5E1; background: #fff; color: #475569;
+  border-radius: 9px; padding: 6px 12px;
+  font-size: 12px; font-weight: 600; font-family: inherit; cursor: pointer;
+}
+.l2-print:active { transform: scale(0.97); }
+.l2-print-wide {
+  display: block; width: 100%; margin: 14px 0 22px;
+  padding: 11px 16px; font-size: 13px; border-radius: 12px;
+}
+
+/* 打印时：藏掉导航和所有按钮，折叠的现象全部展开，让存下来的"整页"是完整的 */
+@media print {
+  .l2-back, .l2-print, button { display: none !important; }
+  .l2-container { box-shadow: none; max-width: none; padding: 0; }
+  .sym-rest { display: list-item !important; }
+}
+
 .l2-h1 { font-size: 22px; font-weight: 800; color: #0F172A; line-height: 1.4; margin-bottom: 8px; }
 .l2-sub { font-size: 13.5px; color: #64748B; line-height: 1.7; margin-bottom: 22px; }
 

@@ -40,6 +40,7 @@ var BAIDU_TONGJI_ID = '3c486c9237fc260c75b575342a69cd70';
  *   pre-done     两问填完、进入选团队
  *   survey-done  症状过完、进入跨团队轮
  *   report       拿到结果
+ *   top1         出结果时，报一次「排名第一的病因代码」（用来算命中分布）
  *
  * 另外两个点专门量「勾太多」那道出口确认的效果，不参与完诊率：
  *   over-gate       命中病因超一半，点「看结果」被拦下
@@ -49,7 +50,9 @@ var BAIDU_TONGJI_ID = '3c486c9237fc260c75b575342a69cd70';
  * 在百度统计后台「事件分析」里看，事件分类是 pay、动作是上面这些。
  * 完诊率 = report / start。
  */
-function trackStep(step) {
+function trackStep(step, label) {
   if (!BAIDU_TONGJI_ID || !window._hmt) return;
-  window._hmt.push(['_trackEvent', 'pay', step]);
+  var args = ['_trackEvent', 'pay', step];
+  if (label) args.push(label);
+  window._hmt.push(args);
 }

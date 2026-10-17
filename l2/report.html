@@ -11,7 +11,10 @@
 </head>
 <body data-l2page="report">
   <div class="l2-container">
-    <a href="javascript:history.back()" class="l2-back">← 返回</a>
+    <div class="l2-topbar">
+      <a href="javascript:history.back()" class="l2-back">← 返回</a>
+      <button class="l2-print" onclick="window.print()">保存成文件</button>
+    </div>
     <div id="l2-body"></div>
   </div>
   <script src="../js/pay-data.js"></script>
