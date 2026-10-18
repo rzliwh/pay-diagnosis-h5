@@ -331,7 +331,7 @@ function updateOverNote() {
   var msg = '';
   if (r.over) {
     msg = '<b>你勾的现象，已经指向 ' + r.n + ' 个病因了，超过一半。</b><br>' +
-          '这不是说你有 ' + r.n + ' 个问题，是说<b>勾得越多，越分不出主次</b>：' +
+          '这不代表你有 ' + r.n + ' 个问题。它说明的是：<b>勾得越多，越分不出主次</b>，' +
           '一条病因可能靠「沾边」就进了榜。<br>' +
           '往回改改：<b>只留你一想起就头疼的那几条</b>，把「好像也有一点」的去掉。';
   }
@@ -748,8 +748,8 @@ function renderReport() {
   if (dp && dp.yearRatio >= DEGRADE_RATIO) {
     html += '<div class="note-box warn">你勾的现象里，有 ' + dp.year +
             ' 条已经持续一年以上。<br>' +
-            '<b>这不是新问题，是这套机制用了很久了。</b>' +
-            '老机制坏起来的方式和新机制不一样，它通常不是设计错了，是被套利了、被适应了、被当成应得的了。</div>';
+            '<b>这些现象持续这么久，说明这套机制已经用了很久。</b>' +
+            '老机制坏起来的方式和新机制不一样。它往往先被套利、被适应、被当成应得，然后才慢慢坏掉。设计本身未必有问题。</div>';
   } else if (dp && dp.freshRatio >= 0.5) {
     html += '<div class="note-box warn">大部分现象是最近才出现的。<br>' +
             '<b>先想清楚最近改过什么</b>，换了人、调了目标、改了提成比例，往往比机制本身更值得查。</div>';
@@ -863,7 +863,7 @@ function renderChainCard(ch, rankLabel, idx) {
   } else if (c.isPre) {
     html += '<div class="chain-block">' +
               '<div class="b-label">调整的思路</div>' +
-              '<div class="b-body">这一步不是调薪酬，是先把「好客户、好区域怎么分」的规则说清楚，它比奖金怎么算更早决定结果。</div>' +
+              '<div class="b-body">这一步先不调薪酬。它要先把「好客户、好区域怎么分」的规则说清楚，这比奖金怎么算更早决定结果。</div>' +
             '</div>';
   }
 
@@ -1131,7 +1131,7 @@ function renderPredictMode() {
   var html = '<div class="empty-state">' +
                '<div class="e-icon">🩺</div>' +
                '<div class="e-title">你现在没勾任何现象</div>' +
-               '<div class="e-desc">这可能是好事，也可能是还没显影。<br>机制不是设下去当天就坏的，是几个月之后坏的。</div>' +
+               '<div class="e-desc">这可能是好事，也可能是还没显影。<br>机制不会在设下去当天就坏，通常要几个月才显形。</div>' +
              '</div>';
 
   if (picks.length) {
@@ -1139,7 +1139,7 @@ function renderPredictMode() {
     // 说成「预测」是吹牛，说成「对照清单」才是真的。
     html += '<h2 class="h-sec h-sub" style="margin-top:8px">这个团队最常见、也最先出现的几个信号</h2>' +
             '<p class="p-sec">这不是针对你的诊断。你没勾任何现象，可能是真没问题，也可能是还没显影。' +
-            '把这几条记下来，过几个月回头对一遍。<b>机制不是设下去当天就坏的，是几个月之后坏的。</b></p>' +
+            '把这几条记下来，过几个月回头对一遍。<b>机制不会在设下去当天就坏，通常要几个月才显形。</b></p>' +
             '<ul class="warn-list">' +
               picks.map(function (s) { return '<li>' + s.text + '</li>'; }).join('') +
             '</ul>';
