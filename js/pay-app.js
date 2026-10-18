@@ -732,13 +732,14 @@ function renderReport() {
 
   /* ---- 正常输出 ---- */
   var html = '';
-  html += '<h2 class="h-sec">你勾了 ' + answered.length + ' 个现象</h2>';
-  html += '<p class="p-sec">下面按可能性排序。每一条都配了「怎么确认」，确认不了，就先别动手。</p>';
+  var mainCause = top[0].nodes[top[0].nodes.length - 1];
+  html += '<h2 class="h-sec">最可能：' + esc(mainCause.plain) + '</h2>';
+  html += '<p class="p-sec">你勾了 ' + answered.length + ' 个现象。下面按可能性排序，每一条都配了「怎么确认」，确认不了，就先别动手。</p>';
 
-  /* 一张主诊断（完整卡），其余降级成「需要排除的」一行。
+  /* 一张主诊断（完整卡），其余降级成「需要排除的」。
    * 三条并列会让用户以为有三个答案，而这是一份诊断书：
    * 一个主诊断，附一份鉴别。 */
-  html += renderChainCard(top[0], '最可能', 0);
+  html += renderChainCard(top[0], '主诊断', 0);
 
   /* 两个提示放在主诊断后面。
    * 原来它们在主诊断上面，等于把结论压到了注释后面。
@@ -761,16 +762,39 @@ function renderReport() {
             '先用下面「需要排除的」排一遍，排不掉再回来。</div>';
   }
 
-  for (var ei = 1; ei < top.length; ei++) {
-    html += renderExcludeCard(top[ei]);
+  /* 需要排除的：两类放在一起。
+   * 一类是主诊断自己的其他解释，另一类是别的可能病因。
+   * 分开标注，避免读者把「这个病还有别的解释」和「可能根本是另一个病」混成一回事。 */
+  var mainExcl = mainCause.exclude || [];
+  var otherChains = top.slice(1);
+  if (mainExcl.length || otherChains.length) {
+    html += '<h2 class="h-sec h-sub">需要排除的</h2>';
+    if (mainExcl.length) {
+      html += '<div class="excl-group">' +
+                '<div class="excl-group-label">这一条的其他解释</div>' +
+                '<div class="chain-block">';
+      mainExcl.forEach(function (e) {
+        html += '<div class="excl-item">' +
+                  '<div class="excl-alt">' + e.alt + '</div>' +
+                  '<div class="excl-how">' + e.how + '</div>' +
+                '</div>';
+      });
+      html += '</div></div>';
+    }
+    if (otherChains.length) {
+      html += '<div class="excl-group">' +
+                '<div class="excl-group-label">别的可能病因</div>';
+      otherChains.forEach(function (ch) { html += renderExcludeCard(ch); });
+      html += '</div>';
+    }
   }
 
-  html += renderPrinciples(top);
   /* ===== 这一段：把你的诊断带走 =====
    * 复制话术 → 保存链接 → 返回修改，三件都是「收尾」，放一起。
    * 返回修改用次要按钮样式（btn-ghost）：它是往回走，
    * 不该跟下一段的付费卡抢重量。 */
   html += renderScriptCard(top[0]);
+  html += renderPrinciples(top);
   html += renderCaptureCard();
 
   /* 返回修改，报告页唯一的返回入口。
@@ -804,9 +828,16 @@ function renderReport() {
   showPage('page-report');
 }
 
-/* L1 的报告页是拼字符串的（没有统一的转义函数），
- * 但两说卡的「中间路径」那段用了 markdown 的 ** 加粗，在这里把 ** 转成加粗。
- * L2 那边是 esc() 一起做的。 */
+/* L1 的报告页是拼字符串的。规则库里的文字是可信的，
+ * 但少数从存档、浏览器状态里带出来的字段仍然要转义。 */
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+/* 两说卡的「中间路径」那段用了 markdown 的 ** 加粗，在这里转。 */
 function mdBold(s) {
   return String(s == null ? '' : s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
 }
@@ -852,6 +883,9 @@ function renderChainCard(ch, rankLabel, idx) {
   }
   html += '</ul></div>';
 
+  /* 诊断和处方的分界 */
+  html += '<div class="chain-split"><span>那怎么办</span></div>';
+
   /* 调整的思路（往哪边调，比调哪个更重要） */
   var knob = c.knob ? KNOBS[c.knob] : null;
   if (knob) {
@@ -891,7 +925,7 @@ function renderChainCard(ch, rankLabel, idx) {
 
   /* 怎么确认 */
   html += '<div class="chain-block">' +
-            '<div class="b-label">怎么确认（10分钟、一个人、不用求人）</div>' +
+            '<div class="b-label">怎么确认</div>' +
             '<div class="b-body">' + c.confirm + '</div>' +
           '</div>';
 
@@ -904,19 +938,6 @@ function renderChainCard(ch, rankLabel, idx) {
             '</div>';
   }
 
-  /* 鉴别诊断：不是免责声明，是「怎么把别的原因排除掉」 */
-  if (c.exclude && c.exclude.length) {
-    html += '<div class="chain-block">' +
-              '<div class="b-label">如果不是这个原因，还可能是什么</div>';
-    c.exclude.forEach(function (e) {
-      html += '<div class="excl-item">' +
-                '<div class="excl-alt">' + e.alt + '</div>' +
-                '<div class="excl-how">' + e.how + '</div>' +
-              '</div>';
-    });
-    html += '</div>';
-  }
-
   html += '</div>';
   return html;
 }
@@ -926,7 +947,6 @@ function renderChainCard(ch, rankLabel, idx) {
 function renderExcludeCard(ch) {
   var c = ch.nodes[ch.nodes.length - 1];
   return '<div class="chain-card compact">' +
-           '<span class="chain-rank excl">需要排除的</span>' +
            '<div class="cmp-name">' + c.plain + '</div>' +
            '<div class="cmp-how"><b>怎么排除：</b>' + c.confirm + '</div>' +
          '</div>';
