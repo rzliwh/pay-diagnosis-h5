@@ -26,10 +26,7 @@ body {
 /* ---------- 头部 ---------- */
 .guide-head h1 {
   font-size: 28px; font-weight: 800; color: #0F172A;
-  line-height: 1.35; margin-bottom: 8px;
-}
-.guide-sub {
-  font-size: 14px; color: #64748B; margin-bottom: 26px;
+  line-height: 1.35; margin-bottom: 26px;
 }
 
 /* ---------- 开篇 ---------- */
