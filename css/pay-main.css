@@ -273,6 +273,14 @@ body {
 }
 .note-box.warn { background: #FFFBEB; border-left-color: #F59E0B; color: #92400E; }
 
+/* 连续的两条提示合成一个框，中间用细线分开。
+ * 不并入同一段，因为两件事不一定同时出现，读的时候也要能分开。 */
+.note-box.note-stack { padding: 12px 14px; }
+.note-stack .note-item + .note-item {
+  margin-top: 10px; padding-top: 10px;
+  border-top: 1px solid rgba(180, 83, 9, 0.18);
+}
+
 /* ========== 提示框的语义表（加新的提示框之前先看这里）==========
  *
  *  红框      警告，"这一步跟你的处境打架"         不许用于：洞察、说明
@@ -344,11 +352,11 @@ body {
 .chain-node .n-plain { font-size: 12.5px; color: #64748B; margin-top: 2px; line-height: 1.5; }
 .chain-arrow { font-size: 12px; color: #CBD5E1; padding-left: 3px; }
 
+/* 证据块去灰底：它长在主诊断卡里面，再套一层灰会像卡中卡。
+ * 留间距和项目符号，靠排版分层，不靠底色。 */
 .chain-evidence {
-  background: #F8FAFC;
-  border-radius: 10px;
-  padding: 12px 14px;
-  margin-bottom: 12px;
+  padding: 0;
+  margin-bottom: 14px;
 }
 .chain-evidence .ev-label { font-size: 11px; color: #94A3B8; margin-bottom: 6px; }
 .chain-evidence ul { list-style: none; }
@@ -372,12 +380,10 @@ body {
   line-height: 1.55;
 }
 
-/* 通用判断 */
+/* 通用判断：去灰底，当成正文里的一段，不再是一个卡 */
 .principle-card {
-  background: #F8FAFC;
-  border-radius: 14px;
-  padding: 16px 18px;
-  margin-bottom: 14px;
+  padding: 0;
+  margin-bottom: 18px;
 }
 .principle-card ul { list-style: none; }
 .principle-card li {
@@ -458,15 +464,18 @@ body {
   color: #94A3B8; margin-bottom: 8px;
 }
 
-/* ========== 初步结论卡 ========== */
-.script-card {
+/* ========== 带走诊断：话术 + 保存，一张卡 ========== */
+/* 两件事都是「把结果拿走」，合成一个容器。
+ * 里面不再各自带边框和阴影，靠中间一条细线分区。 */
+.takeaway-card {
   background: #ffffff;
   border: 1px solid #E2E8F0;
-  border-left: 4px solid #0F766E;
-  border-radius: 6px 16px 16px 6px;
+  border-radius: 16px;
   padding: 18px 20px;
   margin-bottom: 14px;
-  box-shadow: 0 2px 14px rgba(15, 118, 110, 0.07);
+}
+.script-card {
+  margin-bottom: 18px;
 }
 .script-card .sc-label {
   display: flex; align-items: center; gap: 7px;
@@ -494,13 +503,10 @@ body {
 }
 .sc-copy:active { background: #115E59; }
 
-/* ========== 保存结果卡 ========== */
+/* ========== 保存结果（在合并卡的下半段） ========== */
 .capture-card {
-  border: 1px solid #E2E8F0;
-  border-radius: 16px;
-  padding: 18px;
-  background: #ffffff;
-  margin-bottom: 14px;
+  border-top: 1px solid #F1F5F9;
+  padding-top: 18px;
 }
 .capture-card .cap-title { font-size: 15px; font-weight: 700; color: #0F766E; margin-bottom: 6px; }
 .capture-card .cap-desc { font-size: 12.5px; color: #0F766E; opacity: 0.85; line-height: 1.6; margin-bottom: 12px; }
@@ -578,10 +584,10 @@ body {
 }
 
 /* ========== 边界说明 ========== */
+/* 去灰底：这是页脚说明，不是一块内容，用一条细线跟上面分开就够。 */
 .boundary-card {
-  background: #F8FAFC;
-  border-radius: 14px;
-  padding: 16px;
+  border-top: 1px solid #F1F5F9;
+  padding-top: 16px;
   margin-bottom: 14px;
 }
 .boundary-card .bd-title {

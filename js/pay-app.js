@@ -745,21 +745,29 @@ function renderReport() {
    * 原来它们在主诊断上面，等于把结论压到了注释后面。
    * 而且它们本来就是「关于这个诊断的补充」：一个说这套机制老了没，
    * 一个说前两条差别大不大。 */
+  var notes = [];
   var dp = durProfile();
   if (dp && dp.yearRatio >= DEGRADE_RATIO) {
-    html += '<div class="note-box warn">你勾的现象里，有 ' + dp.year +
+    notes.push('你勾的现象里，有 ' + dp.year +
             ' 条已经持续一年以上。<br>' +
             '<b>这些现象持续这么久，说明这套机制已经用了很久。</b>' +
-            '老机制坏起来的方式和新机制不一样。它往往先被套利、被适应、被当成应得，然后才慢慢坏掉。设计本身未必有问题。</div>';
+            '老机制坏起来的方式和新机制不一样。它往往先被套利、被适应、被当成应得，然后才慢慢坏掉。设计本身未必有问题。');
   } else if (dp && dp.freshRatio >= 0.5) {
-    html += '<div class="note-box warn">大部分现象是最近才出现的。<br>' +
-            '<b>先想清楚最近改过什么</b>，换了人、调了目标、改了提成比例，往往比机制本身更值得查。</div>';
+    notes.push('大部分现象是最近才出现的。<br>' +
+            '<b>先想清楚最近改过什么</b>，换了人、调了目标、改了提成比例，往往比机制本身更值得查。');
   }
 
   var conf = judgeConfidence(chains);
   if (conf === 'mid' && top.length > 1) {
-    html += '<div class="note-box warn">前两个的<b>差别不大</b>，先别急着认定是哪一个，' +
-            '先用下面「需要排除的」排一遍，排不掉再回来。</div>';
+    notes.push('前两个的<b>差别不大</b>，先别急着认定是哪一个，' +
+            '先用下面「需要排除的」排一遍，排不掉再回来。');
+  }
+  /* 两条提示都是关于这次诊断的补充（机制老了没 / 前两个分不分得开），
+   * 各自一个框会让页面显得很碎，合成一个框、中间加一条细线。 */
+  if (notes.length) {
+    html += '<div class="note-box warn note-stack">' +
+              notes.map(function (n) { return '<div class="note-item">' + n + '</div>'; }).join('') +
+            '</div>';
   }
 
   /* 需要排除的：两类放在一起。
@@ -790,12 +798,15 @@ function renderReport() {
   }
 
   /* ===== 这一段：把你的诊断带走 =====
-   * 复制话术 → 保存链接 → 返回修改，三件都是「收尾」，放一起。
+   * 话术和保存合成一张卡：两件都是「拿走结果」，分开摆会像两个入口。
+   * 判断块放在这张卡后面，不再夹在中间，免得把「拿走」这件事切断。
    * 返回修改用次要按钮样式（btn-ghost）：它是往回走，
    * 不该跟下一段的付费卡抢重量。 */
-  html += renderScriptCard(top[0]);
+  html += '<div class="takeaway-card">' +
+            renderScriptCard(top[0]) +
+            renderCaptureCard() +
+          '</div>';
   html += renderPrinciples(top);
-  html += renderCaptureCard();
 
   /* 返回修改，报告页唯一的返回入口。
    * 必须写清「取消勾选会丢掉什么」，不然用户会以为答案还留着，
